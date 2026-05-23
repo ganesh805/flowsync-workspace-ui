@@ -1,0 +1,99 @@
+<div class="container vh-100 d-flex justify-content-center align-items-center">
+
+  <div class="card shadow p-5" style="width: 450px; border-radius: 20px;">
+
+    <div class="mb-3">
+
+  <label class="form-label">
+    Company Code
+  </label>
+
+  <input
+    type="text"
+    class="form-control"
+    [(ngModel)]="companyCode"
+  >
+
+</div>
+
+    <h2 class="text-center fw-bold mb-4">
+      Create Account
+    </h2>
+
+    <div class="mb-3">
+
+      <input
+        type="text"
+        class="form-control form-control-lg"
+        placeholder="Enter Name"
+        [(ngModel)]="name"
+      >
+
+    </div>
+
+    <div class="mb-3">
+
+  <input
+    type="text"
+    class="form-control form-control-lg"
+    placeholder="Enter Username"
+    [(ngModel)]="username"
+  >
+
+</div>
+
+<div class="mb-3">
+
+  <input
+    type="text"
+    class="form-control form-control-lg"
+    placeholder="Enter Designation"
+    [(ngModel)]="designation"
+  >
+
+</div>
+
+    <div class="mb-3">
+
+      <input
+        type="email"
+        class="form-control form-control-lg"
+        placeholder="Enter Email"
+        [(ngModel)]="email"
+      >
+
+    </div>
+
+    <div class="mb-4">
+
+      <input
+        type="password"
+        class="form-control form-control-lg"
+        placeholder="Enter Password"
+        [(ngModel)]="password"
+      >
+
+    </div>
+
+    <button
+      class="btn btn-success btn-lg w-100"
+      (click)="register()"
+    >
+      Register
+    </button>
+
+  </div>
+
+  <p class="text-center mt-3">
+
+  Already have an account?
+
+  <a routerLink="/login">
+
+    Login
+
+  </a>
+
+</p>
+
+</div>

@@ -1,0 +1,95 @@
+<div class="container py-5">
+
+  <div class="card shadow p-4 mb-4">
+
+    <h2>
+
+      {{ task?.title }}
+
+    </h2>
+
+    <p>
+
+      {{ task?.description }}
+
+    </p>
+
+
+    <p>
+
+      <strong>Status:</strong>
+
+      {{ task?.status }}
+
+    </p>
+
+    <p>
+
+      <strong>Priority:</strong>
+
+      {{ task?.priority }}
+
+    </p>
+
+    <p>
+
+      <strong>Due Date:</strong>
+
+      {{ task?.dueDate }}
+
+    </p>
+
+  </div>
+
+  <!-- COMMENTS -->
+
+  <div class="card shadow p-4">
+
+    <h4 class="mb-4">
+
+      Task Comments
+
+    </h4>
+
+    <div
+  *ngFor="let comment of comments"
+  class="comment-box"
+>
+
+  <h6 class="fw-bold">
+    {{ comment.user?.name }}
+  </h6>
+
+  <p class="mb-1">
+    {{ comment.message }}
+  </p>
+
+  <small class="text-muted">
+    {{ comment.createdAt | date:'medium' }}
+  </small>
+
+</div>
+
+    <div class="mt-4">
+
+      <textarea
+        class="form-control mb-3"
+        rows="3"
+        placeholder="Add Comment"
+        [(ngModel)]="newComment"
+      ></textarea>
+
+      <button
+        class="btn btn-primary"
+        (click)="addComment()"
+      >
+
+        Add Comment
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

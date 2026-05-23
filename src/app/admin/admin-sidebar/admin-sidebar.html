@@ -1,0 +1,96 @@
+
+<div class="admin-sidebar">
+
+  <!-- TOP -->
+
+  <div>
+
+    <div class="logo-section">
+
+      <h3>
+
+        FlowSync
+
+      </h3>
+
+      <small>
+
+        Admin Workspace
+
+      </small>
+
+    </div>
+
+    <!-- MENU -->
+
+    <div class="menu-section">
+
+      <button
+        class="sidebar-btn"
+        (click)="scrollTo('overview')"
+      >
+
+        📊 Overview
+
+      </button>
+      <a
+  routerLink="/profile"
+  class="nav-item"
+>
+
+  👤 Profile
+
+</a>
+
+      <button
+        class="sidebar-btn"
+        (click)="scrollTo('employees')"
+      >
+
+        👥 Employees
+
+      </button>
+
+      <button
+        class="sidebar-btn"
+        (click)="scrollTo('tasks')"
+      >
+
+        ✅ Tasks
+
+      </button>
+
+      <button
+        class="sidebar-btn"
+        (click)="scrollTo('chat')"
+      >
+
+        💬 Chat
+
+      </button>
+
+      <button
+        class="sidebar-btn"
+        (click)="scrollTo('activity')"
+      >
+
+        📌 Activity
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+
+  <button
+    class="logout-btn"
+    (click)="logout()"
+  >
+
+    Logout
+
+  </button>
+
+</div>

@@ -1,0 +1,683 @@
+<div class="d-flex">
+
+  <!-- SIDEBAR -->
+
+  <app-sidebar></app-sidebar>
+
+  <!-- MAIN CONTENT -->
+
+  <div
+    class="container-fluid min-vh-100 py-4"
+    style="margin-left: 260px;"
+    [ngClass]="{
+      'bg-dark text-white': darkMode,
+      'bg-light text-dark': !darkMode
+    }"
+  >
+
+    <!-- NAVBAR -->
+
+    <app-navbar></app-navbar>
+
+    <div class="container mt-4">
+
+      <!-- HEADER -->
+
+      <div
+        class="d-flex justify-content-between align-items-center mb-5"
+      >
+
+        <div>
+
+          <h2 class="fw-bold mb-1">
+
+            Welcome,
+            {{ nickname }}
+
+          </h2>
+
+          <p class="text-muted mb-0">
+
+            {{ companyName }}
+            Employee Workspace
+
+          </p>
+
+        </div>
+
+        <!-- RIGHT ACTIONS -->
+
+        <div class="d-flex align-items-center gap-3">
+
+          <!-- NOTIFICATIONS -->
+
+          <div id="notifications">
+
+  <button
+    class="btn btn-light position-relative"
+    (click)="showNotifications = !showNotifications"
+  >
+
+    🔔
+
+    @if(unreadCount > 0){
+
+      <span
+        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+      >
+
+        {{ unreadCount }}
+
+      </span>
+
+    }
+
+  </button>
+
+  @if(showNotifications){
+
+    <div class="notification-dropdown">
+
+      <div class="notification-title">
+
+        Notifications
+
+      </div>
+
+      @if(notifications.length === 0){
+
+        <div class="notification-empty">
+
+          No Notifications
+
+        </div>
+
+      }
+
+      @for(notification of notifications; track notification.id){
+
+        <div class="notification-item">
+
+          <small>
+
+            {{ notification.message }}
+
+          </small>
+
+          <small>
+
+            {{ notification.createdAt | date:'short' }}
+
+          </small>
+
+        </div>
+
+      }
+
+    </div>
+
+  }
+
+</div>
+
+          <!-- THEME -->
+
+          <button
+            class="btn btn-secondary"
+            (click)="toggleDarkMode()"
+          >
+
+            Theme
+
+          </button>
+
+          <!-- LOGOUT -->
+
+          <button
+            class="btn btn-danger"
+            (click)="logout()"
+          >
+
+            Logout
+
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- GRID -->
+
+      <div class="row">
+
+        <!-- LEFT SIDE -->
+
+        <div class="col-lg-8">
+
+          <!-- CHANGE PASSWORD -->
+
+          <div class="card modern-card p-4 mb-4">
+
+            <h4 class="fw-bold mb-4">
+
+              Change Password
+
+            </h4>
+
+            <div class="row">
+
+              <div class="col-md-5 mb-3">
+
+                <input
+                  type="password"
+                  class="form-control"
+                  placeholder="Current Password"
+                  [(ngModel)]="currentPassword"
+                >
+
+              </div>
+
+              <div class="col-md-5 mb-3">
+
+                <input
+                  type="password"
+                  class="form-control"
+                  placeholder="New Password"
+                  [(ngModel)]="newPassword"
+                >
+
+              </div>
+
+              <div class="col-md-2 mb-3">
+
+                <button
+                  class="btn btn-dark w-100"
+                  (click)="changePassword()"
+                >
+
+                  Update
+
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- ANALYTICS -->
+
+          <div
+  id="analytics"
+  class="stats-grid mb-4"
+>
+
+  <!-- ASSIGNED -->
+
+  <div class="stats-card blue">
+
+    <div class="stats-left">
+
+      <small class="stats-label">
+
+        Assigned Tasks
+
+      </small>
+
+      <h2 class="stats-number">
+
+        {{ totalTasks }}
+
+      </h2>
+
+      <p class="stats-desc">
+
+        Active workflow tasks
+
+      </p>
+
+    </div>
+
+    <div class="stats-icon-box">
+
+      📋
+
+    </div>
+
+  </div>
+
+  <!-- COMPLETED -->
+
+  <div class="stats-card green">
+
+    <div class="stats-left">
+
+      <small class="stats-label">
+
+        Completed Tasks
+
+      </small>
+
+      <h2 class="stats-number">
+
+        {{ completedTasks }}
+
+      </h2>
+
+      <p class="stats-desc">
+
+        Successfully finished
+
+      </p>
+
+    </div>
+
+    <div class="stats-icon-box">
+
+      ✅
+
+    </div>
+
+  </div>
+
+  <!-- PENDING -->
+
+  <div class="stats-card red">
+
+    <div class="stats-left">
+
+      <small class="stats-label">
+
+        Pending Tasks
+
+      </small>
+
+      <h2 class="stats-number">
+
+        {{ pendingTasks }}
+
+      </h2>
+
+      <p class="stats-desc">
+
+        Waiting for completion
+
+      </p>
+
+    </div>
+
+    <div class="stats-icon-box">
+
+      ⏳
+
+    </div>
+
+  </div>
+
+</div>
+
+          <!-- TASKS -->
+
+          <div
+            id="tasks"
+            class="card modern-card p-4 mb-5"
+          >
+
+            <h3 class="fw-bold mb-4">
+
+              Assigned Tasks
+
+            </h3>
+
+            <div class="mb-3">
+
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search Tasks"
+                [(ngModel)]="searchText"
+              >
+
+            </div>
+
+            <div class="mb-4">
+
+              <select
+                class="form-select"
+                [(ngModel)]="selectedFilter"
+              >
+
+                <option value="ALL">
+                  All Tasks
+                </option>
+
+                <option value="PENDING">
+                  Pending
+                </option>
+
+                <option value="IN_PROGRESS">
+                  In Progress
+                </option>
+
+                <option value="COMPLETED">
+                  Completed
+                </option>
+
+              </select>
+
+            </div>
+
+            <div class="row">
+
+              @for(task of paginatedTasks; track task.id) {
+
+                <div class="col-md-6 mb-4">
+
+                  <div
+                    class="modern-task-card"
+                    [ngClass]="{
+                      'priority-high': task.priority === 'HIGH',
+                      'priority-medium': task.priority === 'MEDIUM',
+                      'priority-low': task.priority === 'LOW'
+                    }"
+                  >
+
+                    <div
+                      class="d-flex justify-content-between align-items-start mb-3"
+                    >
+
+                      <div>
+
+                        <h4 class="task-title">
+
+                          {{ task.title }}
+
+                        </h4>
+                        <button
+                          class="btn btn-dark btn-sm w-100 mb-2"
+                          [routerLink]="['/task', task.id]"
+                >
+                          View Task
+
+                        </button>
+
+                        <small class="text-muted">
+
+                          Due: {{ task.dueDate }}
+
+                        </small>
+
+                      </div>
+                      
+
+                      <span
+                        class="priority-badge"
+                        [ngClass]="{
+                          'badge-high': task.priority === 'HIGH',
+                          'badge-medium': task.priority === 'MEDIUM',
+                          'badge-low': task.priority === 'LOW'
+                        }"
+                      >
+
+                        {{ task.priority }}
+
+                      </span>
+
+                    </div>
+
+                    <p
+  *ngIf="task.description"
+  class="task-description"
+>
+  {{ task.description }}
+</p>
+
+                    <!-- STATUS -->
+
+<div class="mb-3 mt-3">
+
+  <label class="fw-semibold mb-2 d-block">
+
+    Task Status
+
+  </label>
+
+  <select
+  class="form-select modern-select"
+
+  [(ngModel)]="task.status"
+
+  (change)="updateStatus(task.id, $any($event.target).value)"
+>
+
+  <option value="PENDING">
+
+    Pending
+
+  </option>
+
+  <option value="IN_PROGRESS">
+
+    In Progress
+
+  </option>
+
+  <option value="COMPLETION_REQUESTED">
+
+    Waiting For Approval
+
+  </option>
+
+</select>
+
+</div>
+
+<!-- REQUEST APPROVAL -->
+
+<div class="mb-3">
+
+  <button
+    *ngIf="task.status === 'IN_PROGRESS'"
+
+    class="btn btn-success btn-sm"
+
+    (click)="requestCompletion(task.id)"
+  >
+
+    Request Completion Approval
+
+  </button>
+
+</div>
+
+<!-- COMMENTS -->
+
+<div
+  *ngIf="task.comments?.length > 0"
+  class="comments-box mb-3"
+>
+
+  <div
+    *ngFor="let comment of task.comments"
+    class="comment-item"
+  >
+
+    <strong>
+      {{ comment.user?.name }}
+    </strong>
+
+    <p class="mb-1 comment-message">
+      {{ comment.message }}
+    </p>
+
+  </div>
+
+</div>
+
+
+                  </div>
+
+                </div>
+
+              }
+
+            </div>
+
+          </div>
+
+        </div>
+        
+
+        <!-- RIGHT SIDE -->
+
+        <div class="col-lg-4">
+
+          <!-- DISCUSSION -->
+
+<div class="modern-card chat-panel">
+
+  <h2 class="section-title mb-4">
+
+    Discuss Here
+
+  </h2>
+
+  <!-- CHAT AREA -->
+
+  <div class="chat-messages">
+
+    @for(msg of messages; track msg.id) {
+
+      <div
+        class="chat-bubble"
+        [ngClass]="{
+          'my-message':
+          msg.sender?.name === nickname,
+
+          'other-message':
+          msg.sender?.name !== nickname
+        }"
+      >
+
+        <div class="chat-user">
+
+          {{ msg.sender?.name }}
+
+        </div>
+
+        <div class="chat-text">
+
+          {{ msg.message }}
+
+        </div>
+
+        <div class="chat-time">
+
+          {{ msg.createdAt | date:'shortTime' }}
+
+        </div>
+
+      </div>
+
+    }
+
+  </div>
+
+  <!-- INPUT -->
+
+  <div class="chat-input-area">
+
+    <textarea
+  class="form-control modern-chat-input"
+  rows="3"
+  placeholder="Type Message..."
+  [(ngModel)]="newMessage"
+></textarea>
+
+    <button
+      class="send-btn"
+      (click)="sendMessage()"
+    >
+
+      Send
+
+    </button>
+
+  </div>
+
+</div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+<div
+  class="modal fade"
+  id="taskModal"
+  tabindex="-1"
+>
+
+  <div class="modal-dialog modal-lg">
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <h5 class="modal-title">
+
+          {{ selectedTask?.title }}
+
+        </h5>
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <p>
+
+          {{ selectedTask?.description }}
+
+        </p>
+
+        <p>
+
+          <strong>Status:</strong>
+
+          {{ selectedTask?.status }}
+
+        </p>
+
+        <p>
+
+          <strong>Priority:</strong>
+
+          {{ selectedTask?.priority }}
+
+        </p>
+
+        <p>
+
+          <strong>Due Date:</strong>
+
+          {{ selectedTask?.dueDate }}
+
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,81 @@
+<div class="sidebar-container">
+
+  <!-- LOGO -->
+
+  <div class="logo-section">
+
+    <h3>
+
+      FlowSync
+
+    </h3>
+    <p class="brand-subtitle">
+          Employee Workspace
+        </p>
+
+  </div>
+
+  <div class="menu-section">
+
+  <a
+    routerLink="/dashboard"
+    class="sidebar-link"
+  >
+
+    📋 Dashboard
+
+  </a>
+  <a
+  routerLink="/profile"
+  class="nav-item"
+>
+
+  👤 Profile
+
+</a>
+
+  <a
+    class="sidebar-link"
+    (click)="scrollTo('analytics')"
+  >
+
+    📊 Analytics
+
+  </a>
+
+  <a
+    class="sidebar-link"
+    (click)="scrollTo('tasks')"
+  >
+
+    ✅ Tasks
+
+  </a>
+
+  <a
+    class="sidebar-link"
+    (click)="scrollTo('discussion')"
+  >
+
+    💬 Discussion
+
+  </a>
+
+</div>
+
+  <!-- FOOTER -->
+
+  <div class="sidebar-footer">
+
+    <button
+      class="logout-btn"
+      (click)="logout()"
+    >
+
+      Logout
+
+    </button>
+
+  </div>
+
+</div>

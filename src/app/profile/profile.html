@@ -1,0 +1,127 @@
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+
+  <app-admin-sidebar>
+  </app-admin-sidebar>
+
+  <!-- MAIN -->
+
+  <main class="main-content">
+
+    <div class="profile-page">
+
+      <!-- HEADER -->
+
+      <div class="profile-header">
+
+        <div class="profile-image-section">
+
+          <img
+            [src]="
+              profile.profileImage ||
+              'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+            "
+            class="profile-image"
+          >
+
+        </div>
+
+        <div class="profile-info">
+
+          <h1>
+
+            {{ profile.name }}
+
+          </h1>
+
+          <p>
+
+            {{ profile.designation || 'Employee' }}
+
+          </p>
+
+        </div>
+
+      </div>
+
+      <!-- PROFILE CARD -->
+
+      <div class="profile-card">
+
+        <h2>
+
+          Edit Profile
+
+        </h2>
+
+        <div class="profile-grid">
+
+          <input
+            type="text"
+            placeholder="Full Name"
+            [(ngModel)]="profile.name"
+          >
+
+          <input
+            type="text"
+            placeholder="Designation"
+            [(ngModel)]="profile.designation"
+          >
+
+          <input
+            type="text"
+            placeholder="Phone"
+            [(ngModel)]="profile.phone"
+          >
+
+          <input
+            type="text"
+            placeholder="Skills"
+            [(ngModel)]="profile.skills"
+          >
+
+          <input
+            type="text"
+            placeholder="Profile Image URL"
+            [(ngModel)]="profile.profileImage"
+            class="full-width"
+          >
+
+          <textarea
+            rows="6"
+            placeholder="Bio"
+            [(ngModel)]="profile.bio"
+            class="full-width"
+          ></textarea>
+
+        </div>
+
+        <button
+          class="save-btn"
+          (click)="updateProfile()"
+        >
+
+          {{ loading
+            ? 'Saving...'
+            : 'Save Changes'
+          }}
+
+        </button>
+
+        <div
+          class="success-message"
+          *ngIf="successMessage"
+        >
+
+          {{ successMessage }}
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>

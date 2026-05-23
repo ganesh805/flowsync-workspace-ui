@@ -1,0 +1,80 @@
+<div
+  class="container d-flex justify-content-center align-items-center vh-100"
+>
+
+  <div
+    class="card shadow p-5"
+    style="width: 400px;"
+  >
+
+    <h1 class="text-center mb-4">
+
+      Flowsync Login
+    </h1>
+    <p>Modern Workflow & Team Collaboration Platform</p>
+
+    <div class="mb-3">
+
+      <input
+        type="email"
+        class="form-control"
+        placeholder="Enter Email"
+        [(ngModel)]="email"
+      >
+
+    </div>
+
+    <div class="mb-3">
+
+      <input
+        type="password"
+        class="form-control"
+        placeholder="Enter Password"
+        [(ngModel)]="password"
+      >
+
+    </div>
+
+    <button
+      class="btn btn-primary w-100"
+      (click)="login()"
+    >
+      Login
+    </button>
+    <div class="text-center mt-4">
+
+  <a
+    routerLink="/register-company"
+    class="text-decoration-none fw-bold d-block mb-2"
+  >
+
+    Create Company Workspace
+
+  </a>
+
+  <a
+    routerLink="/register"
+    class="text-decoration-none"
+  >
+
+    Employee Registration
+
+  </a>
+
+</div>
+
+    <p class="mt-3 text-center">
+
+      Don't have an account?
+
+      <a routerLink="/register">
+
+        Register
+
+      </a>
+
+    </p>
+
+  </div>
+
+</div>
