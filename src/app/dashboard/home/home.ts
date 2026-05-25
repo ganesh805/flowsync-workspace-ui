@@ -448,7 +448,7 @@ setInterval(() => {
 
   this.http.put(
 
-    `http://localhost:8080/api/tasks/${taskId}/status?status=${status}`,
+    `https://flowsync-workspace-api-2.onrender.com/api/tasks/${taskId}/status?status=${status}`,
 
     {},
 
@@ -482,7 +482,7 @@ setInterval(() => {
 
     this.http.get<any[]>(
 
-      `http://localhost:8080/api/comments/${taskId}`,
+      `https://flowsync-workspace-api-2.onrender.com/api/comments/${taskId}`,
 
       {
         headers: {
@@ -528,7 +528,7 @@ setInterval(() => {
 
     this.http.post(
 
-      `http://localhost:8080/api/comments/${taskId}`,
+      `https://flowsync-workspace-api-2.onrender.com/api/comments/${taskId}`,
 
       {
         message: message
@@ -575,7 +575,7 @@ setInterval(() => {
 
     this.http.get<any[]>(
 
-      'http://localhost:8080/api/notifications',
+      'https://flowsync-workspace-api-2.onrender.com/api/notifications',
 
       {
         headers: {
@@ -743,7 +743,7 @@ setInterval(() => {
 
   this.http.put(
 
-    `http://localhost:8080/api/users/change-password?currentPassword=${this.currentPassword}&newPassword=${this.newPassword}`,
+    `https://flowsync-workspace-api-2.onrender.com/api/users/change-password?currentPassword=${this.currentPassword}&newPassword=${this.newPassword}`,
 
     {},
 
@@ -784,7 +784,7 @@ loadMessages() {
 
   this.http.get<any[]>(
 
-    'http://localhost:8080/api/discussions',
+    'https://flowsync-workspace-api-2.onrender.com/api/discussions',
 
     {
       headers: {
@@ -815,7 +815,7 @@ sendMessage() {
 
   this.http.post(
 
-    'http://localhost:8080/api/discussions',
+    'https://flowsync-workspace-api-2.onrender.com/api/discussions',
 
     {
 
@@ -853,7 +853,7 @@ requestCompletion(taskId: number) {
 
   this.http.put(
 
-    `http://localhost:8080/api/tasks/${taskId}/status?status=COMPLETION_REQUESTED`,
+    `https://flowsync-workspace-api-2.onrender.com/api/tasks/${taskId}/status?status=COMPLETION_REQUESTED`,
 
     {},
 

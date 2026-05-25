@@ -42,7 +42,7 @@ export class RegisterCompany {
   loading = false;
 
   API =
-    'http://localhost:8080/api/users';
+    'https://flowsync-workspace-api-2.onrender.com/api/users';
 
   constructor(
 

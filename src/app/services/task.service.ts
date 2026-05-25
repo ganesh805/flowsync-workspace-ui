@@ -10,7 +10,7 @@ import {
 })
 export class TaskService {
 
-  API = 'http://localhost:8080/api/tasks';
+  API = 'https://flowsync-workspace-api-2.onrender.com/api/tasks';
 
   constructor(private http: HttpClient) {}
 

@@ -76,7 +76,7 @@ implements OnInit {
 
     this.http.get(
 
-      `http://localhost:8080/api/tasks/${id}`,
+      `https://flowsync-workspace-api-2.onrender.com/api/tasks/${id}`,
 
       this.getHeaders()
 
@@ -100,7 +100,7 @@ implements OnInit {
 
     this.http.get<any[]>(
 
-      `http://localhost:8080/api/comments/${taskId}`,
+      `https://flowsync-workspace-api-2.onrender.com/api/comments/${taskId}`,
 
       this.getHeaders()
 
@@ -127,7 +127,7 @@ implements OnInit {
 
   this.http.post(
 
-    `http://localhost:8080/api/comments/${this.task.id}`,
+    `https://flowsync-workspace-api-2.onrender.com/api/comments/${this.task.id}`,
 
     {
       message: this.newComment

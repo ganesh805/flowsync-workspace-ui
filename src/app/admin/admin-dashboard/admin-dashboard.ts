@@ -113,7 +113,7 @@ assignTask() {
 
   this.http.post(
 
-    'http://localhost:8080/api/tasks',
+    'https://flowsync-workspace-api-2.onrender.com/api/tasks',
 
     body,
 
@@ -164,7 +164,7 @@ assignTask() {
     ]
   };
 
-  API = 'http://localhost:8080/api/admin';
+  API = 'https://flowsync-workspace-api-2.onrender.com/api/admin';
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -530,7 +530,7 @@ loadActivityLogs(){
 
   this.http.get<any[]>(
 
-    'http://localhost:8080/api/activity'
+    'https://flowsync-workspace-api-2.onrender.com/api/activity'
 
   ).subscribe({
 
@@ -561,7 +561,7 @@ approveTask(id: number) {
 
   this.http.put(
 
-    `http://localhost:8080/api/tasks/${id}/status?status=COMPLETED`,
+    `https://flowsync-workspace-api-2.onrender.com/api/tasks/${id}/status?status=COMPLETED`,
 
     {},
 
@@ -598,7 +598,7 @@ deleteTask(id: number) {
 
   this.http.delete(
 
-    `http://localhost:8080/api/tasks/${id}`,
+    `https://flowsync-workspace-api-2.onrender.com/api/tasks/${id}`,
 
     this.getHeaders()
 
@@ -626,7 +626,7 @@ loadNotifications() {
 
   this.http.get<any[]>(
 
-    'http://localhost:8080/api/activity',
+    'https://flowsync-workspace-api-2.onrender.com/api/activity',
 
     {
       headers: {
@@ -683,7 +683,7 @@ createEmployee() {
 
   this.http.post(
 
-    'http://localhost:8080/api/admin/create-employee',
+    'https://flowsync-workspace-api-2.onrender.com/api/admin/create-employee',
 
     body,
 
@@ -716,7 +716,7 @@ loadMessages() {
 
   this.http.get(
 
-    'http://localhost:8080/api/discussions',
+    'https://flowsync-workspace-api-2.onrender.com/api/discussions',
 
     this.getHeaders()
 
@@ -753,7 +753,7 @@ sendMessage() {
 
   this.http.post(
 
-    'http://localhost:8080/api/discussions',
+    'https://flowsync-workspace-api-2.onrender.com/api/discussions',
 
     body,
 
@@ -813,7 +813,7 @@ changeRole(
 
   this.http.put(
 
-    `http://localhost:8080/api/admin/users/${userId}/role?role=${role}`,
+    `https://flowsync-workspace-api-2.onrender.com/api/admin/users/${userId}/role?role=${role}`,
 
     {},
 

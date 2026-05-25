@@ -81,7 +81,7 @@ implements OnInit {
 
     this.http.get(
 
-      'http://localhost:8080/api/profile',
+      'https://flowsync-workspace-api-2.onrender.com/api/profile',
 
       this.getHeaders()
 
@@ -111,7 +111,7 @@ implements OnInit {
 
     this.http.put(
 
-      'http://localhost:8080/api/profile',
+      'https://flowsync-workspace-api-2.onrender.com/api/profile',
 
       this.profile,
 
