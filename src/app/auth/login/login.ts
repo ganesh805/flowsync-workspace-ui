@@ -58,6 +58,12 @@ export class Login {
     'token',
     response.token
   );
+  console.log("LOGIN RESPONSE =", response);
+
+  console.log(
+    "TOKEN STORED =",
+    localStorage.getItem('token')
+  );
 
   localStorage.setItem(
     'role',

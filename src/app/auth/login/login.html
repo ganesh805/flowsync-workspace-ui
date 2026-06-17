@@ -1,70 +1,67 @@
-<div
-  class="container d-flex justify-content-center align-items-center vh-100"
->
+<div class="login-container">
 
-  <div
-    class="card shadow p-5"
-    style="width: 400px;"
-  >
+  <div class="login-card">
 
-    <h1 class="text-center mb-4">
+    <div class="brand">
 
-      Flowsync
-      
-    </h1>
-    <p>Modern Workflow & Team Collaboration Platform</p>
+      <img
+        src="images/flowsync-logo.png"
+        alt="FlowSync"
+        class="logo">
 
-    <div class="mb-3">
-
-      <input
-        type="email"
-        class="form-control"
-        placeholder="Enter Email"
-        [(ngModel)]="email"
-      >
+      <h1>FlowSync</h1>
 
     </div>
 
-    <div class="mb-3">
+    <h2>Welcome back</h2>
+
+    <p class="subtitle">
+      Sign in to continue to your workspace
+    </p>
+
+    <div class="input-group">
+
+      <label>Email Address</label>
+
+      <input
+        type="email"
+        [(ngModel)]="email"
+        placeholder="name@company.com">
+
+    </div>
+
+    <div class="input-group">
+
+      <label>Password</label>
 
       <input
         type="password"
-        class="form-control"
-        placeholder="Enter Password"
         [(ngModel)]="password"
-      >
+        placeholder="Enter password">
 
     </div>
 
     <button
-      class="btn btn-primary w-100"
-      (click)="login()"
-    >
+      class="login-btn"
+      (click)="login()">
+
       Login
+
     </button>
-    <div class="text-center mt-4">
 
-  <a
-    routerLink="/register-company"
-    class="text-decoration-none fw-bold d-block mb-2"
-  >
+    <div class="divider"></div>
 
-    Create Company Workspace
+    <div class="bottom-links">
 
-  </a>
+      <a routerLink="/register-company">
+        Create Company Workspace
+      </a>
 
-  <a
-    routerLink="/register"
-    class="text-decoration-none fw-bold d-block mb-2"
-  >
+      <a routerLink="/register">
+        Employee Registration
+      </a>
 
-    Employee Registration
-
-  </a>
-
-</div>
-
-    
+    </div>
 
   </div>
 

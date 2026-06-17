@@ -626,7 +626,7 @@ loadNotifications() {
 
   this.http.get<any[]>(
 
-    'https://flowsync-workspace-api-2.onrender.com/api/activity',
+    'https://flowsync-workspace-api-2.onrender.com/api/notifications',
 
     {
       headers: {
