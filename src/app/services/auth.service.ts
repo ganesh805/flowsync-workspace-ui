@@ -7,7 +7,8 @@ import { Observable } from 'rxjs';
 })
 export class AuthService {
 
-  private API = 'https://flowsync-workspace-api-2.onrender.com/api/users';
+  private API = //'https://flowsync-workspace-api-2.onrender.com/api/users';
+  'http://localhost:8080/api/users';
 
   constructor(private http: HttpClient) {}
 
