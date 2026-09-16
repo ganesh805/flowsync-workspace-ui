@@ -1,127 +1,111 @@
-<div class="admin-layout">
+<div class="container-fluid max-w-4xl py-2">
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div>
+      <h2 class="fw-bold text-main mb-1">Employee Profile</h2>
+      <p class="text-secondary mb-0 small">View personal employee details, contact info, bio, and assigned Team Lead</p>
+    </div>
+    <button class="btn btn-outline-secondary rounded-pill px-3" (click)="goBack()">
+      ← Back to Workspace
+    </button>
+  </div>
 
-  <!-- SIDEBAR -->
+  <!-- LOADING SPINNER -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-indigo" role="status">
+      <span class="visually-hidden">Loading profile...</span>
+    </div>
+  </div>
 
-  <app-admin-sidebar>
-  </app-admin-sidebar>
-
-  <!-- MAIN -->
-
-  <main class="main-content">
-
-    <div class="profile-page">
-
-      <!-- HEADER -->
-
-      <div class="profile-header">
-
-        <div class="profile-image-section">
-
-          <img
-            [src]="
-              profile.profileImage ||
-              'https://cdn-icons-png.flaticon.com/512/149/149071.png'
-            "
-            class="profile-image"
-          >
-
+  <!-- PROFILE CARD -->
+  <div *ngIf="!loading" class="card bg-surface border rounded-4 p-4 shadow-sm">
+    <!-- AVATAR & PRIMARY HEADER -->
+    <div class="d-flex align-items-center gap-4 mb-4 pb-4 border-bottom">
+      <img
+        [src]="profile.profileImage || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'"
+        alt="Profile Avatar"
+        class="rounded-circle border border-3 border-indigo shadow-sm flex-shrink-0"
+        style="width: 88px; height: 88px; object-fit: cover;"
+      >
+      <div>
+        <h3 class="fw-bold text-main mb-1">{{ profile.name || 'Employee' }}</h3>
+        <p class="text-indigo mb-1 fw-semibold fs-5">{{ profile.designation || 'Team Member' }}</p>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <span class="badge bg-secondary-subtle text-secondary fs-xs">📧 Email: {{ profile.email }}</span>
+          <span *ngIf="profile.phone" class="badge bg-secondary-subtle text-secondary fs-xs">📞 Phone: {{ profile.phone }}</span>
         </div>
-
-        <div class="profile-info">
-
-          <h1>
-
-            {{ profile.name }}
-
-          </h1>
-
-          <p>
-
-            {{ profile.designation || 'Employee' }}
-
-          </p>
-
-        </div>
-
       </div>
-
-      <!-- PROFILE CARD -->
-
-      <div class="profile-card">
-
-        <h2>
-
-          Edit Profile
-
-        </h2>
-
-        <div class="profile-grid">
-
-          <input
-            type="text"
-            placeholder="Full Name"
-            [(ngModel)]="profile.name"
-          >
-
-          <input
-            type="text"
-            placeholder="Designation"
-            [(ngModel)]="profile.designation"
-          >
-
-          <input
-            type="text"
-            placeholder="Phone"
-            [(ngModel)]="profile.phone"
-          >
-
-          <input
-            type="text"
-            placeholder="Skills"
-            [(ngModel)]="profile.skills"
-          >
-
-          <input
-            type="text"
-            placeholder="Profile Image URL"
-            [(ngModel)]="profile.profileImage"
-            class="full-width"
-          >
-
-          <textarea
-            rows="6"
-            placeholder="Bio"
-            [(ngModel)]="profile.bio"
-            class="full-width"
-          ></textarea>
-
-        </div>
-
-        <button
-          class="save-btn"
-          (click)="updateProfile()"
-        >
-
-          {{ loading
-            ? 'Saving...'
-            : 'Save Changes'
-          }}
-
-        </button>
-
-        <div
-          class="success-message"
-          *ngIf="successMessage"
-        >
-
-          {{ successMessage }}
-
-        </div>
-
-      </div>
-
     </div>
 
-  </main>
+    <!-- SUMMARY DISPLAY CARDS FOR MANAGER & CONTACT DETAILS -->
+    <div class="row g-3 mb-4">
+      <!-- ASSIGNED TEAM LEAD / MANAGER -->
+      <div class="col-md-6">
+        <div class="p-3 bg-body-tertiary rounded-3 border h-100 shadow-2xs">
+          <small class="text-secondary d-block fs-xs fw-semibold text-uppercase mb-1">Team Lead / Manager</small>
+          <strong class="text-main fs-6 d-block">
+            👤 {{ profile.createdBy?.name ? profile.createdBy?.name : 'Organization Owner / CEO' }}
+          </strong>
+          <small *ngIf="profile.createdBy?.designation" class="d-block text-indigo fs-xs">{{ profile.createdBy?.designation }}</small>
+          <small *ngIf="profile.createdBy?.email" class="d-block text-secondary fs-xs">Contact: {{ profile.createdBy?.email }}</small>
+        </div>
+      </div>
 
+      <!-- DEPARTMENT & CONTACT SUMMARY -->
+      <div class="col-md-6">
+        <div class="p-3 bg-body-tertiary rounded-3 border h-100 shadow-2xs d-flex flex-column justify-content-between">
+          <div>
+            <small class="text-secondary d-block fs-xs fw-semibold text-uppercase mb-1">Organization Team / Department</small>
+            <strong class="text-indigo fs-6 text-uppercase d-block">
+              🏢 {{ profile.team?.name || profile.createdBy?.designation || profile.designation || 'GENERAL' }}
+            </strong>
+          </div>
+          <div class="mt-2">
+            <small class="text-secondary fs-xs me-2">Employee Code:</small>
+            <span class="badge bg-dark font-monospace text-white px-2.5 py-1 fs-xs">{{ profile.employeeCode || 'EMP001' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABOUT / SHORT BIO SUMMARY -->
+      <div *ngIf="profile.bio" class="col-md-12">
+        <div class="p-3 bg-body-tertiary rounded-3 border shadow-2xs">
+          <small class="text-secondary d-block fs-xs fw-semibold text-uppercase mb-1">About Employee</small>
+          <p class="mb-0 text-main fs-xs text-break"><em>"{{ profile.bio }}"</em></p>
+        </div>
+      </div>
+    </div>
+
+    <h5 class="fw-bold text-main mb-3">Edit Employee Profile & Contact Details</h5>
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <label class="form-label text-secondary fs-xs fw-semibold">Employee Name</label>
+        <input type="text" class="form-control rounded-3" autocomplete="off" [(ngModel)]="profile.name">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label text-secondary fs-xs fw-semibold">Designation</label>
+        <input type="text" class="form-control rounded-3" autocomplete="off" [(ngModel)]="profile.designation">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label text-secondary fs-xs fw-semibold">Contact Phone Number</label>
+        <input type="text" class="form-control rounded-3" autocomplete="off" placeholder="+1 (555) 000-0000" [(ngModel)]="profile.phone">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label text-secondary fs-xs fw-semibold">Skills (comma separated)</label>
+        <input type="text" class="form-control rounded-3" autocomplete="off" placeholder="Java, Angular, Project Management" [(ngModel)]="profile.skills">
+      </div>
+      <div class="col-md-12">
+        <label class="form-label text-secondary fs-xs fw-semibold">Avatar Image URL</label>
+        <input type="text" class="form-control rounded-3" autocomplete="off" [(ngModel)]="profile.profileImage">
+      </div>
+      <div class="col-md-12">
+        <label class="form-label text-secondary fs-xs fw-semibold">About / Short Bio</label>
+        <textarea rows="4" class="form-control rounded-3" autocomplete="off" placeholder="Write a short summary about your background and experience..." [(ngModel)]="profile.bio"></textarea>
+      </div>
+    </div>
+
+    <button class="btn btn-indigo text-white rounded-3 px-4 py-2 fw-semibold shadow-sm" (click)="updateProfile()" [disabled]="saving">
+      {{ saving ? 'Saving Changes...' : 'Save Profile Details' }}
+    </button>
+  </div>
 </div>

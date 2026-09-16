@@ -1,0 +1,262 @@
+<div class="slack-chat-workspace card border rounded-4 shadow-sm overflow-hidden bg-surface flex-grow-1 d-flex flex-row" style="height: calc(100vh - 110px); min-height: 550px;">
+  
+  <!-- LEFT SIDEBAR: CHANNELS & DIRECT MESSAGES -->
+  <aside class="chat-sidebar bg-body-tertiary border-end d-flex flex-column flex-shrink-0" style="width: 280px;">
+    <!-- SIDEBAR HEADER -->
+    <div class="sidebar-header p-3 border-bottom d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-2">
+        <span class="fs-5">⚡</span>
+        <h6 class="fw-bold mb-0 text-main">FlowSync Chat</h6>
+      </div>
+      <button
+        *ngIf="canCreateChannel"
+        class="btn btn-sm btn-indigo text-white rounded-circle d-flex align-items-center justify-content-center shadow-2xs"
+        style="width: 28px; height: 28px;"
+        (click)="openCreateChannelModal()"
+        title="Create Channel"
+      >
+        +
+      </button>
+    </div>
+
+    <!-- SIDEBAR SCROLLABLE CONTENT -->
+    <div class="sidebar-content flex-grow-1 overflow-y-auto p-2">
+      <!-- CHANNELS SECTION -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center px-2 mb-1">
+          <small class="text-secondary fw-bold text-uppercase fs-xxs tracking-wider">Channels</small>
+          <button *ngIf="canCreateChannel" class="btn btn-link btn-xs text-decoration-none p-0 text-indigo fw-bold" (click)="openCreateChannelModal()">+ Add</button>
+        </div>
+
+        <div *ngIf="loadingChannels" class="text-center py-2">
+          <div class="spinner-border spinner-border-sm text-indigo" role="status"></div>
+        </div>
+
+        <div *ngIf="!loadingChannels && channels.length === 0" class="px-2 py-1 text-secondary fs-xxs">
+          No channels found.
+        </div>
+
+        <div class="d-flex flex-column gap-1">
+          <button
+            *ngFor="let c of channels"
+            class="btn btn-sm text-start w-100 rounded-3 px-2.5 py-1.5 d-flex align-items-center justify-content-between transition-all"
+            [ngClass]="(activeType === 'CHANNEL' && selectedChannel?.id === c.id) ? 'btn-indigo text-white shadow-2xs' : 'btn-light-subtle text-main hover-bg'"
+            (click)="selectChannel(c)"
+          >
+            <div class="d-flex align-items-center gap-2 text-truncate pe-1">
+              <span class="fs-xs opacity-75">
+                {{ c.channelType === 'PRIVATE' ? '🔒' : (c.channelType === 'PUBLIC_ORG' ? '📢' : '#') }}
+              </span>
+              <span class="fw-medium fs-xs text-truncate">{{ c.name }}</span>
+            </div>
+            <small *ngIf="c.memberCount" class="badge rounded-pill bg-body text-secondary fs-xxs opacity-75">{{ c.memberCount }}</small>
+          </button>
+        </div>
+      </div>
+
+      <!-- DIRECT MESSAGES SECTION -->
+      <div>
+        <div class="px-2 mb-1">
+          <small class="text-secondary fw-bold text-uppercase fs-xxs tracking-wider">Direct Messages</small>
+        </div>
+
+        <div *ngIf="dmContacts.length === 0" class="px-2 py-1 text-secondary fs-xxs">
+          No contacts available.
+        </div>
+
+        <div class="d-flex flex-column gap-1">
+          <button
+            *ngFor="let contact of dmContacts"
+            class="btn btn-sm text-start w-100 rounded-3 px-2.5 py-1.5 d-flex align-items-center gap-2 transition-all"
+            [ngClass]="(activeType === 'DM' && selectedDMContact?.id === contact.id) ? 'btn-indigo text-white shadow-2xs' : 'btn-light-subtle text-main hover-bg'"
+            (click)="selectDMContact(contact)"
+          >
+            <span class="position-relative d-inline-block">
+              <span class="fs-xs">👤</span>
+              <span class="position-absolute bottom-0 end-0 bg-success rounded-circle border border-white" style="width: 7px; height: 7px;"></span>
+            </span>
+            <div class="text-truncate flex-grow-1">
+              <div class="fw-medium fs-xs text-truncate" style="line-height: 1.2;">{{ contact.name }}</div>
+              <small class="d-block text-opacity-75 fs-xxs text-truncate opacity-75">{{ contact.designation || 'Team Member' }}</small>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT CONVERSATION AREA -->
+  <main class="chat-main flex-grow-1 d-flex flex-column min-w-0 bg-surface">
+    <!-- CONVERSATION HEADER -->
+    <header *ngIf="activeType === 'CHANNEL' && selectedChannel" class="chat-header px-4 py-3 border-bottom bg-surface d-flex align-items-center justify-content-between flex-shrink-0">
+      <div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="fs-5">{{ selectedChannel.channelType === 'PRIVATE' ? '🔒' : (selectedChannel.channelType === 'PUBLIC_ORG' ? '📢' : '#') }}</span>
+          <h6 class="fw-bold mb-0 text-main">{{ selectedChannel.name }}</h6>
+          <span class="badge bg-indigo-subtle text-indigo rounded-pill fs-xxs text-uppercase">{{ selectedChannel.channelType }}</span>
+        </div>
+        <small class="text-secondary fs-xs d-block mt-0.5 pe-3">
+          {{ selectedChannel.description || 'No channel description set.' }} • {{ selectedChannel.memberCount || 1 }} members
+        </small>
+      </div>
+    </header>
+
+    <header *ngIf="activeType === 'DM' && selectedDMContact" class="chat-header px-4 py-3 border-bottom bg-surface d-flex align-items-center justify-content-between flex-shrink-0">
+      <div class="d-flex align-items-center gap-3">
+        <div class="avatar-circle bg-indigo text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5" style="width: 40px; height: 40px;">
+          {{ selectedDMContact.name.charAt(0) }}
+        </div>
+        <div>
+          <h6 class="fw-bold mb-0 text-main">{{ selectedDMContact.name }}</h6>
+          <small class="text-success fw-medium fs-xs">● Direct Conversation • {{ selectedDMContact.designation || 'Team Member' }}</small>
+        </div>
+      </div>
+    </header>
+
+    <!-- MESSAGES FEED CONTAINER -->
+    <div #scrollContainer class="chat-messages-container flex-grow-1 p-4 overflow-y-auto d-flex flex-column gap-3">
+      
+      <!-- LOADING STATE -->
+      <div *ngIf="loadingMessages" class="text-center py-5">
+        <div class="spinner-border text-indigo" role="status">
+          <span class="visually-hidden">Loading conversation...</span>
+        </div>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div *ngIf="!loadingMessages && messages.length === 0" class="text-center py-5 my-auto text-secondary">
+        <div class="fs-1 mb-2">💬</div>
+        <h6 class="fw-bold text-main">No Messages Yet</h6>
+        <p class="fs-xs text-secondary mb-0">Be the first to start the conversation in {{ activeType === 'CHANNEL' ? '#' + selectedChannel?.name : selectedDMContact?.name }}!</p>
+      </div>
+
+      <!-- MESSAGES LIST -->
+      <div *ngFor="let m of messages" class="message-card-row d-flex gap-3 group hover-bg p-2 rounded-3 transition-all" [class.bg-danger-subtle]="m.isDeleted">
+        <div class="avatar-circle bg-indigo-subtle text-indigo rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style="width: 36px; height: 36px;">
+          {{ (m.senderName || 'U').charAt(0) }}
+        </div>
+
+        <div class="message-content-wrapper flex-grow-1 min-w-0">
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <div class="d-flex align-items-baseline gap-2">
+              <strong class="text-main fs-xs fw-bold">{{ m.senderName }}</strong>
+              <small *ngIf="m.senderDesignation" class="badge bg-body-tertiary text-secondary fs-xxs border">{{ m.senderDesignation }}</small>
+              <small class="text-secondary fs-xxs">{{ m.createdAt | date:'shortTime' }}</small>
+              <small *ngIf="m.isEdited" class="text-secondary italic fs-xxs">(edited)</small>
+            </div>
+
+            <!-- ACTIONS (EDIT / DELETE FOR SENDER) -->
+            <div *ngIf="m.senderId === currentUserId && !m.isDeleted" class="message-actions opacity-0 group-hover-opacity-100 btn-group btn-group-sm">
+              <button class="btn btn-xs btn-outline-secondary py-0 px-1.5" (click)="startEditMessage(m)" title="Edit">✏️</button>
+              <button class="btn btn-xs btn-outline-danger py-0 px-1.5" (click)="deleteMessage(m.id)" title="Delete">🗑️</button>
+            </div>
+          </div>
+
+          <!-- MESSAGE CONTENT OR EDIT INPUT -->
+          <div *ngIf="editingMessageId !== m.id">
+            <p class="mb-0 text-main fs-xs text-break whitespace-pre-wrap" [class.text-decoration-line-through]="m.isDeleted">
+              {{ m.isDeleted ? 'This message was deleted.' : m.content }}
+            </p>
+          </div>
+
+          <div *ngIf="editingMessageId === m.id" class="mt-1">
+            <input type="text" class="form-control form-control-sm rounded-3 mb-1" [(ngModel)]="editInput" (keyup.enter)="saveEditMessage(m.id)">
+            <div class="d-flex gap-1 justify-content-end">
+              <button class="btn btn-xs btn-secondary" (click)="cancelEdit()">Cancel</button>
+              <button class="btn btn-xs btn-indigo text-white" (click)="saveEditMessage(m.id)">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGE INPUT BAR -->
+    <footer class="chat-input-footer p-3 border-top bg-surface flex-shrink-0">
+      <div class="position-relative">
+        <textarea
+          rows="2"
+          class="form-control rounded-4 pe-5 shadow-2xs resize-none"
+          [placeholder]="'Message ' + (activeType === 'CHANNEL' ? '#' + selectedChannel?.name : selectedDMContact?.name) + '... (Press Enter to send, Shift+Enter for new line)'"
+          [(ngModel)]="messageInput"
+          (keydown)="handleKeyDown($event)"
+        ></textarea>
+
+        <button
+          class="btn btn-indigo text-white rounded-circle position-absolute end-0 bottom-0 me-2 mb-2 d-flex align-items-center justify-content-center shadow-sm"
+          style="width: 34px; height: 34px;"
+          [disabled]="!messageInput.trim()"
+          (click)="sendMessage()"
+          title="Send Message"
+        >
+          ➔
+        </button>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<!-- CREATE CHANNEL MODAL -->
+<div *ngIf="showCreateModal" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="z-index: 9999; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px);">
+  <div class="card border-0 rounded-4 shadow-lg overflow-hidden w-100 mx-3 bg-surface animate__animated animate__fadeInUp" style="max-width: 520px;">
+    <div class="card-header bg-indigo text-white p-3.5 d-flex justify-content-between align-items-center border-0">
+      <h6 class="fw-bold mb-0 text-white"># Create Channel</h6>
+      <button class="btn-close btn-close-white" (click)="closeCreateChannelModal()"></button>
+    </div>
+
+    <div class="card-body p-4">
+      <div class="mb-3">
+        <label class="form-label text-secondary fs-xs fw-semibold">Channel Name</label>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-body-tertiary">#</span>
+          <input type="text" class="form-control rounded-end-3" placeholder="e.g. backend-team" [(ngModel)]="newChannelName">
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label text-secondary fs-xs fw-semibold">Description (Optional)</label>
+        <textarea rows="2" class="form-control rounded-3 fs-xs" placeholder="e.g. Backend API development discussion" [(ngModel)]="newChannelDescription"></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label text-secondary fs-xs fw-semibold">Channel Type</label>
+        <div class="d-flex flex-column gap-2 border.p-3 rounded-3 bg-body-tertiary p-3">
+          <div *ngIf="isOwner" class="form-check d-flex align-items-center gap-2 m-0">
+            <input class="form-check-input mt-0 flex-shrink-0" type="radio" name="chType" id="typeOrg" value="PUBLIC_ORG" [(ngModel)]="newChannelType">
+            <label class="form-check-label fs-xs fw-semibold text-main cursor-pointer" for="typeOrg">
+              📢 Organization Public (Visible to all employees)
+            </label>
+          </div>
+
+          <div class="form-check d-flex align-items-center gap-2 m-0">
+            <input class="form-check-input mt-0 flex-shrink-0" type="radio" name="chType" id="typeTeam" value="PUBLIC_TEAM" [(ngModel)]="newChannelType">
+            <label class="form-check-label fs-xs fw-semibold text-main cursor-pointer" for="typeTeam">
+              👥 Team Public (Visible to team members)
+            </label>
+          </div>
+
+          <div class="form-check d-flex align-items-center gap-2 m-0">
+            <input class="form-check-input mt-0 flex-shrink-0" type="radio" name="chType" id="typePrivate" value="PRIVATE" [(ngModel)]="newChannelType">
+            <label class="form-check-label fs-xs fw-semibold text-main cursor-pointer" for="typePrivate">
+              🔒 Private (Visible only to invited members)
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="newChannelType === 'PUBLIC_TEAM' && teams.length > 0" class="mb-3">
+        <label class="form-label text-secondary fs-xs fw-semibold">Select Associated Team</label>
+        <select class="form-select form-select-sm rounded-3" [(ngModel)]="selectedTeamId">
+          <option [ngValue]="null">-- Select Team --</option>
+          <option *ngFor="let t of teams" [value]="t.id">{{ t.name }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card-footer bg-body-tertiary p-3 border-top d-flex justify-content-end gap-2">
+      <button class="btn btn-secondary rounded-3 px-3 fw-semibold fs-xs" (click)="closeCreateChannelModal()">Cancel</button>
+      <button class="btn btn-indigo text-white rounded-3 px-4 fw-semibold fs-xs" (click)="submitCreateChannel()" [disabled]="submittingChannel">
+        {{ submittingChannel ? 'Creating...' : 'Create Channel' }}
+      </button>
+    </div>
+  </div>
+</div>

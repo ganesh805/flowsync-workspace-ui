@@ -1,140 +1,91 @@
 import { Component, OnInit } from '@angular/core';
-
 import { CommonModule } from '@angular/common';
-
 import { FormsModule } from '@angular/forms';
-
-import { HttpClient, HttpHeaders }
-from '@angular/common/http';
-
-import { AdminSidebar }
-from '../admin/admin-sidebar/admin-sidebar';
+import { HttpClient } from '@angular/common/http';
+import { Router, RouterModule } from '@angular/router';
+import { environment } from '../../environments/environment';
+import { AuthStateService } from '../services/auth-state.service';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-profile',
-
   standalone: true,
-
   imports: [
     CommonModule,
     FormsModule,
-    AdminSidebar
+    RouterModule
   ],
-
   templateUrl: './profile.html',
-
   styleUrls: ['./profile.css']
 })
+export class ProfileComponent implements OnInit {
+  private readonly API = `${environment.apiUrl}/profile`;
 
-export class ProfileComponent
-implements OnInit {
-
-  profile:any = {
-
-    name:'',
-    designation:'',
-    phone:'',
-    bio:'',
-    skills:'',
-    profileImage:''
-
+  profile: any = {
+    name: '',
+    email: '',
+    designation: '',
+    phone: '',
+    bio: '',
+    skills: '',
+    profileImage: ''
   };
 
   loading = false;
-
-  successMessage = '';
+  saving = false;
+  isAdmin = false;
 
   constructor(
-    private http:HttpClient
-  ){}
+    private http: HttpClient,
+    public authState: AuthStateService,
+    private toastService: ToastService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-
+    this.isAdmin = this.authState.isAdmin();
     this.loadProfile();
   }
 
-  // =========================
-  // TOKEN HEADERS
-  // =========================
-
-  getHeaders(){
-
-    const token =
-      localStorage.getItem('token');
-
-    return {
-
-      headers:new HttpHeaders({
-
-        Authorization:
-          `Bearer ${token}`
-
-      })
-    };
-  }
-
-  // =========================
-  // LOAD PROFILE
-  // =========================
-
-  loadProfile(){
-
-    this.http.get(
-
-      'https://flowsync-workspace-api-2.onrender.com/api/profile',
-
-      this.getHeaders()
-
-    ).subscribe({
-
-      next:(response:any)=>{
-
-        this.profile = response;
-
-        console.log(response);
-      },
-
-      error:(err)=>{
-
-        console.log(err);
-      }
-    });
-  }
-
-  // =========================
-  // UPDATE PROFILE
-  // =========================
-
-  updateProfile(){
-
+  loadProfile(): void {
     this.loading = true;
-
-    this.http.put(
-
-      'https://flowsync-workspace-api-2.onrender.com/api/profile',
-
-      this.profile,
-
-      this.getHeaders()
-
-    ).subscribe({
-
-      next:(response)=>{
-
+    this.http.get<any>(this.API).subscribe({
+      next: (res) => {
         this.loading = false;
-
-        this.successMessage =
-          'Profile Updated Successfully';
-
-        console.log(response);
+        this.profile = res || {};
       },
-
-      error:(err)=>{
-
+      error: (err) => {
         this.loading = false;
-
-        console.log(err);
+        this.toastService.error('Profile Error', 'Failed to load profile details.');
       }
     });
+  }
+
+  updateProfile(): void {
+    if (!this.profile.name?.trim()) {
+      this.toastService.warning('Required', 'Full Name is required.');
+      return;
+    }
+
+    this.saving = true;
+    this.http.put<any>(this.API, this.profile).subscribe({
+      next: (res) => {
+        this.saving = false;
+        this.profile = res;
+        this.toastService.success('Profile Saved', 'Your profile details have been updated.');
+      },
+      error: (err) => {
+        this.saving = false;
+        this.toastService.error('Error', err?.error?.message || 'Failed to update profile.');
+      }
+    });
+  }
+
+  goBack(): void {
+    if (this.isAdmin) {
+      this.router.navigate(['/admin']);
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
   }
 }

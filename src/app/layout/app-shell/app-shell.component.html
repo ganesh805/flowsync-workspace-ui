@@ -1,0 +1,117 @@
+<div class="app-layout d-flex min-vh-100 bg-body">
+  <!-- SIDEBAR NAVIGATION -->
+  <app-sidebar class="app-shell-sidebar flex-shrink-0"></app-sidebar>
+
+  <!-- MAIN CONTAINER -->
+  <div class="main-wrapper d-flex flex-column flex-grow-1 min-vw-0">
+    <!-- TOP NAVBAR HEADER -->
+    <header class="app-header border-bottom bg-surface d-flex justify-content-between align-items-center px-3 px-lg-4 py-2.5">
+      <!-- LEFT SIDE: MOBILE TOGGLE, BRAND LOGO, TITLE, ROLE BADGE -->
+      <div class="d-flex align-items-center flex-shrink-0 me-3">
+        <!-- MOBILE HAMBURGER BUTTON -->
+        <button
+          class="btn btn-outline-secondary d-lg-none rounded-3 px-2 py-1 me-2"
+          (click)="toggleMobileMenu()"
+          aria-label="Toggle Navigation"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        </button>
+
+        <div class="header-brand d-flex align-items-center">
+          <img
+            *ngIf="logoUrl"
+            [src]="logoUrl"
+            alt="Logo"
+            class="header-logo-img rounded-3 border bg-white p-1 flex-shrink-0 me-2.5"
+            style="width: 34px; height: 34px; object-fit: contain;"
+          >
+          <div class="d-flex align-items-center gap-2">
+            <span class="fw-bold fs-5 text-indigo mb-0 text-truncate" style="line-height: 1.2;">
+              {{ companyName }}
+            </span>
+            <span class="badge rounded-pill bg-indigo-subtle text-indigo font-monospace fs-xs flex-shrink-0 me-2">{{ userRole }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MIDDLE: FULL WIDE WHITE SPACE SCROLLING MARQUEE (EMPLOYEE PAGE ONLY) -->
+      <div *ngIf="isEmployee && employeeTeamName" class="header-marquee-wide-container flex-grow-1 mx-2 mx-md-4 overflow-hidden position-relative">
+        <span class="fw-bold fs-5 text-indigo mb-0 header-marquee-text text-uppercase">
+          {{ employeeTeamName }}
+        </span>
+      </div>
+      <div *ngIf="!isEmployee || !employeeTeamName" class="flex-grow-1"></div>
+
+      <!-- RIGHT SIDE: CONTROLS (NOTIFICATIONS, DARK MODE, PROFILE, LOGOUT) -->
+      <div class="d-flex align-items-center gap-2 gap-md-3 flex-shrink-0">
+        <!-- NOTIFICATIONS DROPDOWN -->
+        <div class="position-relative">
+          <button
+            class="btn btn-outline-secondary rounded-circle p-2 position-relative d-inline-flex align-items-center justify-content-center"
+            (click)="showNotifications = !showNotifications"
+            style="width: 38px; height: 38px;"
+            aria-label="Notifications"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            <span
+              *ngIf="notificationState.unreadCount() > 0"
+              class="position-absolute badge rounded-circle bg-danger border border-light notification-badge-count d-flex align-items-center justify-content-center"
+            >
+              {{ notificationState.unreadCount() > 9 ? '9+' : notificationState.unreadCount() }}
+            </span>
+          </button>
+
+          <!-- NOTIFICATIONS PANEL -->
+          <div *ngIf="showNotifications" class="card position-absolute end-0 mt-2 shadow-lg border rounded-4 overflow-hidden z-3" style="width: 320px;">
+            <div class="card-header bg-surface d-flex justify-content-between align-items-center py-2.5 px-3 border-bottom">
+              <span class="fw-bold fs-xs text-uppercase text-secondary">Notifications</span>
+              <button class="btn btn-link btn-sm text-decoration-none p-0 fs-xs" (click)="notificationState.markAllAsRead()">
+                Mark all read
+              </button>
+            </div>
+            <div class="card-body p-0 max-h-64 overflow-y-auto">
+              <div *ngIf="notificationState.notifications().length === 0" class="text-center py-4 text-secondary fs-xs">
+                No new notifications
+              </div>
+              <div
+                *ngFor="let n of notificationState.notifications()"
+                class="p-3 border-bottom hover-bg cursor-pointer transition-all"
+                [class.bg-body-tertiary]="!n.read"
+                (click)="notificationState.markAsRead(n.id)"
+              >
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                  <span class="fw-semibold fs-xs text-main">{{ n.message }}</span>
+                  <small class="text-secondary fs-xxs">{{ n.createdAt | date:'short' }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DARK MODE TOGGLE -->
+        <button
+          class="btn btn-outline-secondary rounded-pill px-3 py-1.5 fs-xs d-inline-flex align-items-center gap-1.5"
+          (click)="toggleDarkMode()"
+        >
+          <span>{{ darkMode ? '☀️ Light' : '🌙 Dark' }}</span>
+        </button>
+
+        <!-- USER PROFILE BADGE / ROUTE LINK -->
+        <a routerLink="/profile" class="btn btn-outline-primary rounded-pill px-3 py-1.5 fs-xs fw-medium d-inline-flex align-items-center gap-1.5 text-decoration-none">
+          <span>👤</span>
+          <span class="d-none d-sm-inline">{{ userName }}</span>
+        </a>
+
+        <!-- LOGOUT BUTTON -->
+        <button class="btn btn-danger text-white rounded-pill px-3 py-1.5 fs-xs fw-semibold shadow-2xs" (click)="logout()">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT AREA -->
+    <main class="content-body flex-grow-1 p-3 p-md-4">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

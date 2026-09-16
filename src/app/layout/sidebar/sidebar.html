@@ -1,81 +1,123 @@
-<div class="sidebar-container">
+<aside class="sidebar-inner bg-slate-900 text-white p-3 d-flex flex-column justify-content-between h-100 border-end border-slate-800">
+  <div>
+    <!-- LOGO & BRAND SECTION -->
+    <div class="logo-section pb-3 mb-3 border-bottom border-slate-800 d-flex align-items-center">
+      <img
+        *ngIf="logoUrl"
+        [src]="logoUrl"
+        alt="Organization Logo"
+        class="brand-logo-img rounded-3 border border-slate-700 bg-white p-1 flex-shrink-0 me-3"
+        style="width: 42px; height: 42px; object-fit: contain;"
+      >
+      <div *ngIf="!logoUrl" class="brand-avatar bg-indigo text-white rounded-3 d-flex align-items-center justify-content-center fw-bold fs-5 flex-shrink-0 me-3" style="width: 42px; height: 42px;">
+        {{ companyName.charAt(0) }}
+      </div>
 
-  <!-- LOGO -->
+      <div class="brand-text-wrapper overflow-hidden flex-grow-1 min-w-0">
+        <h5 class="fw-bold text-white mb-0 tracking-tight text-truncate" style="line-height: 1.25; font-size: 1.1rem;">{{ companyName }}</h5>
+        <span class="d-block text-indigo-400 fw-semibold text-uppercase mt-0.5" style="font-size: 0.65rem; letter-spacing: 0.5px;">
+          {{ isOwner ? 'ORGANIZATION OWNER' : (isAdmin ? 'WORKSPACE ADMIN' : 'EMPLOYEE PORTAL') }}
+        </span>
+      </div>
+    </div>
 
-  <div class="logo-section">
+    <!-- MENU LINKS FOR OWNER -->
+    <nav *ngIf="isOwner" class="menu-section d-flex flex-column gap-1">
+      <small class="text-slate-400 fw-bold text-uppercase fs-xxs px-2 mb-1">Organization Management</small>
+      <a routerLink="/owner" routerLinkActive="active-link" (click)="onItemClick()" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        Owner Dashboard
+      </a>
 
-    <h3>
+      <a routerLink="/organization" routerLinkActive="active-link" (click)="onItemClick()" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg>
+        Organization Profile
+      </a>
 
-      FlowSync
+      <a routerLink="/organization/teams" routerLinkActive="active-link" (click)="onItemClick()" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Teams Overview
+      </a>
 
-    </h3>
-    <p class="brand-subtitle">
-          Employee Workspace
-        </p>
+      <small class="text-slate-400 fw-bold text-uppercase fs-xxs px-2 mt-2 mb-1">Administration</small>
+      <a routerLink="/admin" routerLinkActive="active-link" (click)="onItemClick()" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Employees & Tasks
+      </a>
 
+      <a routerLink="/chat" routerLinkActive="active-link" (click)="onItemClick()" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Workspace Chat
+      </a>
+
+      <a routerLink="/profile" routerLinkActive="active-link" (click)="onItemClick()" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Personal Profile
+      </a>
+    </nav>
+
+    <!-- MENU LINKS FOR ADMIN (NOT OWNER) -->
+    <nav *ngIf="isAdmin && !isOwner" class="menu-section d-flex flex-column gap-1">
+      <a routerLink="/admin" routerLinkActive="active-link" (click)="onItemClick()" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        Overview
+      </a>
+
+      <a (click)="onItemClick('employees')" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center cursor-pointer">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Employees
+      </a>
+
+      <a (click)="onItemClick('tasks')" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center cursor-pointer">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Task Management
+      </a>
+
+      <a routerLink="/chat" routerLinkActive="active-link" (click)="onItemClick()" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Workspace Chat
+      </a>
+
+      <a (click)="onItemClick('activity')" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center cursor-pointer">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+        Audit Log
+      </a>
+
+      <a routerLink="/profile" routerLinkActive="active-link" (click)="onItemClick()" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </a>
+    </nav>
+
+    <!-- MENU LINKS FOR EMPLOYEE -->
+    <nav *ngIf="!isAdmin && !isOwner" class="menu-section d-flex flex-column gap-1">
+      <a routerLink="/dashboard" routerLinkActive="active-link" (click)="onItemClick()" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        Dashboard
+      </a>
+
+      <a (click)="onItemClick('tasks')" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center cursor-pointer">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Assigned Tasks
+      </a>
+
+      <a routerLink="/chat" routerLinkActive="active-link" (click)="onItemClick()" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Workspace Chat
+      </a>
+
+      <a routerLink="/profile" routerLinkActive="active-link" (click)="onItemClick()" class="sidebar-link p-2.5 rounded-3 text-slate-300 hover-bg d-flex align-items-center">
+        <svg class="me-2.5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </a>
+    </nav>
   </div>
 
-  <div class="menu-section">
-
-  <a
-    routerLink="/dashboard"
-    class="sidebar-link"
-  >
-
-    📋 Dashboard
-
-  </a>
-  <a
-  routerLink="/profile"
-  class="nav-item"
->
-
-  👤 Profile
-
-</a>
-
-  <a
-    class="sidebar-link"
-    (click)="scrollTo('analytics')"
-  >
-
-    📊 Analytics
-
-  </a>
-
-  <a
-    class="sidebar-link"
-    (click)="scrollTo('tasks')"
-  >
-
-    ✅ Tasks
-
-  </a>
-
-  <a
-    class="sidebar-link"
-    (click)="scrollTo('discussion')"
-  >
-
-    💬 Discussion
-
-  </a>
-
-</div>
-
-  <!-- FOOTER -->
-
-  <div class="sidebar-footer">
-
-    <button
-      class="logout-btn"
-      (click)="logout()"
-    >
-
+  <!-- FOOTER LOGOUT -->
+  <div class="sidebar-footer pt-3 border-top border-slate-800">
+    <button class="logout-btn btn btn-outline-danger w-100 rounded-3 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2" (click)="logout()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
       Logout
-
     </button>
-
   </div>
-
-</div>
+</aside>

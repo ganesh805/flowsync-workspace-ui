@@ -1,0 +1,42 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.bg-surface {
+  background-color: #ffffff;
+}
+
+.text-main {
+  color: #0f172a;
+}
+
+.text-secondary {
+  color: #64748b;
+}
+
+.text-indigo {
+  color: #4f46e5 !important;
+}
+
+.bg-indigo-subtle {
+  background-color: #e0e7ff !important;
+}
+
+.btn-indigo {
+  background-color: #6366f1;
+  border-color: #6366f1;
+}
+
+.btn-indigo:hover {
+  background-color: #4f46e5;
+  border-color: #4f46e5;
+}
+
+.fs-xs {
+  font-size: 0.75rem;
+}
+
+.max-w-4xl {
+  max-width: 900px;
+}

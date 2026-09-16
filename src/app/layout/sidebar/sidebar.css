@@ -1,122 +1,84 @@
-.sidebar-container {
-
-  width: 260px;
-
-  height: 100vh;
-
-  background: #111827;
-
-  color: white;
-
-  position: fixed;
-
-  left: 0;
-
-  top: 0;
-
-  display: flex;
-
-  flex-direction: column;
-
-  justify-content: space-between;
-
-  padding: 24px;
-
-  box-shadow: 4px 0 12px rgba(0,0,0,0.15);
-
-  z-index: 1000;
+:host {
+  display: block;
+  width: 260px !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
+  height: 100%;
+  flex-shrink: 0 !important;
 }
 
-/* LOGO */
-
-.logo-section h3 {
-
-  font-size: 28px;
-
-  font-weight: bold;
-
-  color: #60a5fa;
+.sidebar-inner {
+  height: 100%;
+  width: 260px !important;
+  background-color: #0f172a;
 }
 
-/* MENU */
-
-.menu-section {
-
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 14px;
-
-  margin-top: 40px;
+.bg-slate-900 {
+  background-color: #0f172a !important;
 }
 
-.menu-section a {
+.border-slate-800 {
+  border-color: #1e293b !important;
+}
 
+.text-indigo {
+  color: #818cf8 !important;
+}
+
+.text-indigo-400 {
+  color: #818cf8 !important;
+}
+
+.text-slate-300 {
+  color: #cbd5e1 !important;
+}
+
+.text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+.hover-bg:hover {
+  background-color: #1e293b;
+  color: #ffffff !important;
+}
+
+.sidebar-link {
   text-decoration: none;
-
-  color: #d1d5db;
-
-  padding: 14px 16px;
-
-  border-radius: 10px;
-
-  transition: 0.3s ease;
-
-  font-size: 16px;
-
+  font-size: 0.9rem;
   font-weight: 500;
+  transition: all 0.2s ease;
 }
-
-.menu-section a:hover {
-
-  background: #1f2937;
-
-  color: white;
-
-  transform: translateX(4px);
-}
-
-/* ACTIVE */
 
 .active-link {
-
-  background: #2563eb;
-
-  color: white !important;
+  background-color: #6366f1 !important;
+  color: #ffffff !important;
 }
 
-/* FOOTER */
-
-.sidebar-footer {
-
-  margin-top: auto;
+.active-link .text-indigo-400 {
+  color: #ffffff !important;
 }
 
-/* LOGOUT */
-
-.logout-btn {
-
-  width: 100%;
-
-  border: none;
-
-  background: #dc2626;
-
-  color: white;
-
-  padding: 14px;
-
-  border-radius: 10px;
-
-  font-size: 15px;
-
-  font-weight: 600;
-
-  transition: 0.3s ease;
+.cursor-pointer {
+  cursor: pointer;
 }
 
-.logout-btn:hover {
+.me-2\.5 {
+  margin-right: 0.625rem;
+}
 
-  background: #b91c1c;
+.min-w-0 {
+  min-width: 0 !important;
+}
+
+.brand-logo-img,
+.brand-avatar {
+  flex-shrink: 0 !important;
+}
+
+.brand-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  min-width: 0;
 }

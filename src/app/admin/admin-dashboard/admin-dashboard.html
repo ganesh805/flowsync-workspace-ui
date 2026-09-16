@@ -1,779 +1,443 @@
-<div class="admin-layout">
-
-  <!-- SIDEBAR -->
-
-  <aside class="sidebar">
-
+<div class="admin-dashboard py-2">
+  <!-- PAGE HEADER -->
+  <div id="overview" class="dashboard-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
     <div>
-
-      <div class="brand-section">
-
-        <h1 class="brand-logo">
-          FlowSync
-        </h1>
-
-        <p class="brand-subtitle">
-          Admin Workspace
-        </p>
-
-      </div>
-
-      <nav class="sidebar-nav">
-
-        <a (click)="scrollToSection('overview')" class="nav-item active">
-
-          <span>📊</span>
-          <span>Overview</span>
-
-        </a>
-
-        <a (click)="scrollToSection('employees')" class="nav-item">
-
-          <span>👥</span>
-          <span>Employees</span>
-
-        </a>
-
-        <a (click)="scrollToSection('tasks')" class="nav-item">
-
-          <span>✅</span>
-          <span>Tasks</span>
-
-        </a>
-
-        <a (click)="scrollToSection('chat')" class="nav-item">
-
-          <span>💬</span>
-          <span>Chat</span>
-
-        </a>
-
-        <a (click)="scrollToSection('activity')" class="nav-item">
-
-          <span>📌</span>
-          <span>Activity</span>
-
-        </a>
-
-      </nav>
-
+      <h2 class="fw-bold text-main mb-1 tracking-tight">{{ companyName || 'Workspace Admin' }}</h2>
+      <p class="text-secondary mb-0 small">Welcome back, <strong class="text-main">{{ adminName }}</strong> 👋</p>
     </div>
-
-    <button
-      class="logout-btn"
-      (click)="logout()"
-    >
-
-      Logout
-
-    </button>
-
-  </aside>
-
-  <!-- MAIN CONTENT -->
-
-  <main class="main-content">
-
-    <!-- HEADER -->
-
-    <section
-      id="overview"
-      class="dashboard-header"
-    >
-
-      <div>
-
-        <h1 class="dashboard-title">
-          {{companyName}}
-        </h1>
-
-        <p class="dashboard-subtitle">
-          Welcome back, {{ adminName }}
-        </p>
-
-      </div>
-
-      <div class="header-actions">
-
-  <!-- BELL -->
-
-  <div id="notifications">
-
-  <button
-    class="notification-btn"
-    (click)="showNotifications = !showNotifications"
-  >
-
-    🔔
-
-
-    <span
-      *ngIf="unreadCount > 0"
-      class="notification-count"
-    >
-
-      {{ unreadCount }}
-
-    </span>
-
-  </button>
-
-  <div
-    class="notification-dropdown"
-    *ngIf="showNotifications"
-  >
-
-    <div class="notification-header">
-
-      <h5>Notifications</h5>
-
-      <button
-        class="close-btn"
-        (click)="showNotifications = false"
-      >
-
-        ✕
-
-      </button>
-
-    </div>
-
-    <div
-      class="notification-empty"
-      *ngIf="notifications.length === 0"
-    >
-
-      No Notifications
-
-    </div>
-
-    <div
-      class="notification-scroll"
-      *ngIf="notifications.length > 0"
-    >
-
-      <div
-        class="notification-item"
-        *ngFor="
-          let notification
-          of notifications
-        "
-      >
-        <div class="notification-message">
-  {{ notification.message }}
-</div>
-
-        <div class="notification-time">
-
-          {{ notification.createdAt | date:'short' }}
-
-        </div>
-
-      </div>
-
-    </div>
-
   </div>
 
-</div>
-
-        <button
-          class="header-logout-btn"
-          (click)="logout()"
-        >
-
-          Logout
-
-        </button>
-
+  <!-- STATS GRID -->
+  <section class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card stat-card border-0 p-4 rounded-4 shadow-sm bg-gradient-blue text-white">
+        <small class="text-white-50 text-uppercase fw-bold letter-spacing-1">Total Workspace Tasks</small>
+        <h2 class="fw-bold my-2 display-6">{{ totalTasks }}</h2>
+        <span class="small text-white-50">Assigned across company team</span>
       </div>
-
-    </section>
-
-    <!-- STATS -->
-
-    <section class="stats-grid">
-
-      <div class="stat-card blue-card">
-
-        <div>
-
-          <h1>{{ totalTasks }}</h1>
-
-          <p>Total Tasks</p>
-
-        </div>
-
-        <div class="stat-icon">
-          📋
-        </div>
-
+    </div>
+    <div class="col-md-4">
+      <div class="card stat-card border-0 p-4 rounded-4 shadow-sm bg-gradient-green text-white">
+        <small class="text-white-50 text-uppercase fw-bold letter-spacing-1">Completed Tasks</small>
+        <h2 class="fw-bold my-2 display-6">{{ completedTasks }}</h2>
+        <span class="small text-white-50">Successfully finished & verified</span>
       </div>
-
-      <div class="stat-card green-card">
-
-        <div>
-
-          <h1>{{ completedTasks }}</h1>
-
-          <p>Completed</p>
-
-        </div>
-
-        <div class="stat-icon">
-          ✅
-        </div>
-
+    </div>
+    <div class="col-md-4">
+      <div class="card stat-card border-0 p-4 rounded-4 shadow-sm bg-gradient-amber text-white">
+        <small class="text-white-50 text-uppercase fw-bold letter-spacing-1">Pending Tasks</small>
+        <h2 class="fw-bold my-2 display-6">{{ pendingTasks }}</h2>
+        <span class="small text-white-50">In progress / awaiting employee action</span>
       </div>
+    </div>
+  </section>
 
-      <div class="stat-card red-card">
-
-        <div>
-
-          <h1>{{ pendingTasks }}</h1>
-
-          <p>Pending</p>
-
+  <div class="row g-4">
+    <!-- LEFT SECTION: FORMS & TABLES -->
+    <div class="col-lg-8">
+      <!-- CREATE EMPLOYEE -->
+      <section id="employees" class="card bg-surface border rounded-4 p-4 mb-4 shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-main mb-0">Create Employee Account</h5>
+          <span class="badge rounded-pill px-3 py-1.5 fs-xs" [ngClass]="myCreatedCount >= 20 ? 'bg-danger text-white' : 'bg-success-subtle text-success'">
+            {{ myCreatedCount }} / 20 Employees Created
+          </span>
         </div>
-
-        <div class="stat-icon">
-          ⏳
-        </div>
-
-      </div>
-
-    </section>
-
-    <!-- CONTENT -->
-
-    <section class="content-grid">
-
-      <!-- LEFT -->
-
-      <div class="left-content">
-
-        <!-- ADD EMPLOYEE -->
-
-        <div
-          id="employees"
-          class="glass-card"
-        >
-
-          <h2 class="section-title">
-            Add Employee
-          </h2>
-
-          <div class="employee-grid">
-
-            <input
-              type="text"
-              placeholder="Employee Name"
-              [(ngModel)]="employeeName"
-            >
-
-            <input
-              type="text"
-              placeholder="Username"
-              [(ngModel)]="employeeUsername"
-            >
-
-            <input
-              type="email"
-              placeholder="Email"
-              [(ngModel)]="employeeEmail"
-            >
-
-            <input
-              type="text"
-              placeholder="Designation"
-              [(ngModel)]="employeeDesignation"
-            >
-
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label text-secondary fs-xs fw-semibold">Full Name</label>
+            <input type="text" class="form-control rounded-3" autocomplete="off" [(ngModel)]="employeeName">
           </div>
+          <div class="col-md-6">
+            <label class="form-label text-secondary fs-xs fw-semibold">Username (optional)</label>
+            <input type="text" class="form-control rounded-3" autocomplete="off" [(ngModel)]="employeeUsername">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-secondary fs-xs fw-semibold">Company Email</label>
+            <input type="email" class="form-control rounded-3" autocomplete="off" [(ngModel)]="employeeEmail">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-secondary fs-xs fw-semibold">Designation / Role Title</label>
+            <input type="text" class="form-control rounded-3" autocomplete="off" [(ngModel)]="employeeDesignation">
+          </div>
+          <div class="col-md-12">
+            <label class="form-label text-secondary fs-xs fw-semibold">Temporary Password</label>
+            <input type="password" class="form-control rounded-3" autocomplete="new-password" [(ngModel)]="employeePassword">
+          </div>
+          <div class="col-md-12 mt-3">
+            <button
+              class="btn btn-indigo text-white w-100 rounded-3 py-2.5 fw-semibold shadow-sm"
+              (click)="createEmployee()"
+              [disabled]="authState.isStrictAdmin() && myCreatedCount >= 20"
+            >
+              {{ (authState.isStrictAdmin() && myCreatedCount >= 20) ? 'Creation Limit Reached (20/20)' : 'Create Employee' }}
+            </button>
+          </div>
+        </div>
+      </section>
 
-          <input
-            type="password"
-            placeholder="Password"
-            class="full-input"
-            [(ngModel)]="employeePassword"
-          >
-
-          <button
-            class="primary-btn"
-            (click)="createEmployee()"
-          >
-
-            Create Employee
-
-          </button>
-
+      <!-- EMPLOYEES TABLE -->
+      <section class="card bg-surface border rounded-4 p-4 mb-4 shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-main mb-0">Employees ({{ filteredUsers.length }})</h5>
+          <input type="text" class="form-control form-control-sm rounded-3 w-auto" placeholder="🔍 Search employees..." [(ngModel)]="searchText" (input)="filterUsers()">
         </div>
 
-        <div
-  id="employee-table"
-  class="glass-card"
->
-
-  <div class="employee-header">
-
-    <h2 class="section-title">
-      Employees
-    </h2>
-
-    <input
-      type="text"
-      placeholder="Search Employee"
-      [(ngModel)]="searchText"
-      (input)="filterUsers()"
-      class="search-input"
-    >
-
-  </div>
-
-  <div class="employee-table-wrapper">
-
-    <table class="employee-table">
-
-      <thead>
-
-        <tr>
-
-          <th>Name</th>
-          <th>Designation</th>
-          <th>Role</th>
-          <th>Actions</th>
-
-        </tr>
-
-      </thead>
-
-      <tbody>
-
-        @for(user of filteredUsers; track user.id) {
-
-          <tr>
-
-            <td>{{ user.name }}</td>
-
-            <td>{{ user.designation }}</td>
-
-            <td>
-
-              <span class="role-badge">
-
-                {{ user.role }}
-
-              </span>
-
-            </td>
-
-            <td class="table-actions">
-
-              <button
-                class="yellow-btn"
-                (click)="changeDesignation(user)"
-              >
-
-                Designation
-
-              </button>
-
-              <select
-                (change)="changeRole(user.id, $any($event.target).value)"
-              >
-
-                <option value="ADMIN">
-                  ADMIN
-                </option>
-
-                <option value="MEMBER">
-                  MEMBER
-                </option>
-
-              </select>
-
-              <button
-                class="red-btn"
-                (click)="deleteUser(user.id)"
-              >
-
-                Delete
-
-              </button>
-
-            </td>
-
-          </tr>
-
-        }
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-</div>
-
-<div
-  id="assign-task"
-  class="glass-card"
->
-
-  <h2 class="section-title">
-    Assign Task
-  </h2>
-
-  <div class="assign-task-grid">
-
-    <input
-  type="text"
-  class="modern-input"
-  placeholder="Task Title"
-  [(ngModel)]="taskTitle"
->
-
-    <select 
-    class="modern-select"
-    [(ngModel)]="assignedUserId">
-
-      <option value="">
-        Select Employee
-      </option>
-
-      @for(user of users; track user.id) {
-
-        <option [value]="user.id">
-
-          {{ user.name }}
-
-        </option>
-
-      }
-
-    </select>
-
-  </div>
-
-  <textarea
-    rows="4"
-    placeholder="Task Description"
-    class="modern-textarea"
-    [(ngModel)]="taskDescription"
-  ></textarea>
-
-  <div class="assign-task-grid">
-
-  <input
-    type="date"
-    class="modern-input"
-    [(ngModel)]="taskDueDate"
-  >
-
-  <select
-    class="modern-select"
-    [(ngModel)]="taskPriority"
-  >
-
-    <option value="LOW">
-      LOW
-    </option>
-
-    <option value="MEDIUM">
-      MEDIUM
-    </option>
-
-    <option value="HIGH">
-      HIGH
-    </option>
-
-  </select>
-
-</div>
-
-  <button
-    class="primary-btn"
-    (click)="assignTask()"
-  >
-
-    Assign Task
-
-  </button>
-
-</div>
-
-        <!-- TASKS -->
-
-        <div
-          id="tasks"
-          class="glass-card"
-        >
-
-          <h2 class="section-title">
-            Tasks
-          </h2>
-
-          <div class="tasks-grid">
-
-            @for(task of tasks; track task.id) {
-
-              <div
-                class="task-card"
-
-                [ngClass]="{
-                  'completed-task':
-                    task.status === 'COMPLETED',
-
-                  'pending-task':
-                    task.status !== 'COMPLETED'
-                }"
-              >
-
-                <div class="task-top">
-
-                  <div>
-
-                    <h4 class="task-title">
-                      {{ task.title }}
-                    </h4>
-
-                    <p class="assigned-user">
-                      {{ task.assignedTo?.name }}
-                    </p>
-
-                  </div>
-
-                  <span
-                    class="task-status"
-
-                    [ngClass]="{
-                      'status-green':
-                        task.status === 'COMPLETED',
-
-                      'status-red':
-                        task.status !== 'COMPLETED'
-                    }"
-                  >
-
-                    {{ task.status }}
-
-                  </span>
-
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead class="table-light-header">
+              <tr>
+                <th class="text-secondary fs-xs text-uppercase">Code</th>
+                <th class="text-secondary fs-xs text-uppercase">Employee</th>
+                <th class="text-secondary fs-xs text-uppercase">Designation</th>
+                <th class="text-secondary fs-xs text-uppercase">Role</th>
+                <th class="text-secondary fs-xs text-uppercase text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let u of filteredUsers">
+                <td>
+                  <span class="badge bg-dark font-monospace text-white px-2 py-1 fs-xxs">{{ u.employeeCode || 'EMP001' }}</span>
+                </td>
+                <td>
+                  <div class="fw-bold text-main">{{ u.name }}</div>
+                  <small class="text-secondary">{{ u.email }}</small>
+                </td>
+                <td>
+                    <span
+                      class="badge bg-secondary-subtle text-secondary rounded-pill cursor-pointer border hover-bg px-2.5 py-1"
+                      (click)="changeDesignation(u)"
+                      title="Click to edit designation"
+                    >
+                      {{ u.designation || 'Employee' }} ✏️
+                    </span>
+                  </td>
+                <td>
+                  <span class="badge rounded-pill" [ngClass]="u.role === 'ADMIN' ? 'bg-danger-subtle text-danger' : 'bg-primary-subtle text-primary'">{{ u.role }}</span>
+                </td>
+                <td class="text-end">
+                  <select class="form-select form-select-sm d-inline-block w-auto rounded-2 me-2" [ngModel]="u.role" (change)="changeRole(u.id, $any($event.target).value)">
+                    <option value="ADMIN">ADMIN</option>
+                    <option value="MEMBER">MEMBER</option>
+                  </select>
+                  <button class="btn btn-sm btn-outline-danger rounded-2" (click)="deleteUser(u.id)">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ASSIGN TASK -->
+      <section id="tasks" class="card bg-surface border rounded-4 p-4 mb-4 shadow-sm">
+        <h5 class="fw-bold text-main mb-3">Assign Task to Employee</h5>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label text-secondary fs-xs fw-semibold">Task Title</label>
+            <input type="text" class="form-control rounded-3" autocomplete="off" [(ngModel)]="taskTitle">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-secondary fs-xs fw-semibold">Assigned Employee</label>
+            <select class="form-select rounded-3" [(ngModel)]="assignedUserId">
+              <option value="">Select Employee</option>
+              <option *ngFor="let u of users" [value]="u.id">{{ u.name }} ({{ u.designation }})</option>
+            </select>
+          </div>
+          <div class="col-md-12">
+            <label class="form-label text-secondary fs-xs fw-semibold">Task Instructions</label>
+            <textarea rows="3" class="form-control rounded-3" autocomplete="off" [(ngModel)]="taskDescription"></textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-secondary fs-xs fw-semibold">Due Date</label>
+            <input type="date" class="form-control rounded-3" [(ngModel)]="taskDueDate">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-secondary fs-xs fw-semibold">Priority</label>
+            <select class="form-select rounded-3" [(ngModel)]="taskPriority">
+              <option value="LOW">LOW Priority</option>
+              <option value="MEDIUM">MEDIUM Priority</option>
+              <option value="HIGH">HIGH Priority</option>
+            </select>
+          </div>
+          <div class="col-md-12 mt-3">
+            <button class="btn btn-indigo text-white w-100 rounded-3 py-2.5 fw-semibold shadow-sm" (click)="assignTask()">Assign Task</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- WORKSPACE TASKS LIST -->
+      <section class="card bg-surface border rounded-4 p-4 mb-4 shadow-sm">
+        <h5 class="fw-bold text-main mb-3">Workspace Tasks</h5>
+        <div class="row g-3">
+          <div *ngFor="let t of tasks" class="col-md-6">
+            <div class="card bg-body-tertiary border p-3 rounded-3 h-100 shadow-2xs">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="fw-bold mb-0 text-main">{{ t.title }}</h6>
+                <span class="badge rounded-pill" [ngClass]="t.status === 'COMPLETED' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning-emphasis'">{{ t.status }}</span>
+              </div>
+              <p class="small text-secondary mb-2 text-clamp-2">{{ t.description || 'No instructions provided.' }}</p>
+              <small class="d-block text-secondary fs-xs mb-3">Assigned to: <strong class="text-main">{{ t.assignedTo?.name || 'Unassigned' }}</strong></small>
+              <div class="d-flex gap-2 mt-auto">
+                <button (click)="openTaskComments(t)" class="btn btn-sm btn-outline-indigo rounded-2 me-1">💬 Comments</button>
+                <button *ngIf="t.status !== 'COMPLETED'" class="btn btn-sm btn-success rounded-2" (click)="approveTask(t.id)">Approve</button>
+                <button class="btn btn-sm btn-outline-danger rounded-2 ms-auto" (click)="deleteTask(t.id)">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESIGNATION REQUESTS SECTION -->
+      <section id="resignations" class="card bg-surface border rounded-4 p-4 mb-4 shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-main mb-0">Employee Resignation Requests ({{ resignations.length }})</h5>
+          <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill">HR & Team Lead Approval</span>
+        </div>
+
+        <div *ngIf="resignations.length === 0" class="text-center py-4 text-secondary small">
+          No employee resignation requests submitted.
+        </div>
+
+        <div *ngIf="resignations.length > 0" class="row g-3">
+          <div *ngFor="let r of resignations" class="col-md-12">
+            <div class="card bg-body-tertiary border p-3 rounded-3 shadow-2xs">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <h6 class="fw-bold mb-0 text-main">{{ r.employee?.name || 'Employee' }}</h6>
+                  <small class="text-secondary fs-xs">{{ r.employee?.email }} • Code: {{ r.employee?.employeeCode || 'EMP' }}</small>
                 </div>
-
-                <div class="task-description">
-
-                  {{ task.description }}
-
-                </div>
-
-                <div class="task-buttons">
-
-                  <button
-                    class="dark-btn"
-                    [routerLink]="['/task', task.id]"
-                  >
-
-                    View Task
-
-                  </button>
-
-                  <button
-                    class="green-btn"
-                    (click)="approveTask(task.id)"
-                  >
-
-                    Approve
-
-                  </button>
-
-                  <button
-                    class="red-btn"
-                    (click)="deleteTask(task.id)"
-                  >
-
-                    Delete
-
-                  </button>
-
-                </div>
-
+                <span
+                  class="badge rounded-pill text-uppercase fs-xs"
+                  [ngClass]="{
+                    'bg-warning-subtle text-warning-emphasis': r.status === 'PENDING',
+                    'bg-success-subtle text-success': r.status === 'APPROVED',
+                    'bg-danger-subtle text-danger': r.status === 'REJECTED'
+                  }"
+                >
+                  {{ r.status }}
+                </span>
               </div>
 
-            }
-
-          </div>
-
-        </div>
-
-        <!-- ACTIVITY -->
-
-        <div
-          id="activity"
-          class="glass-card"
-        >
-
-          <h2 class="section-title">
-            Activity Logs
-          </h2>
-
-          <div class="activity-list">
-
-            @for(log of activityLogs; track log.id) {
-
-              <div class="activity-item">
-
-                <div class="activity-action">
-                  {{ log.action }}
-                </div>
-
-                <small>
-                  {{ log.details }}
-                </small>
-
+              <div class="p-2.5 bg-white rounded-3 border mb-2 fs-xs text-main">
+                <div><strong>Reason:</strong> {{ r.reason }}</div>
+                <div *ngIf="r.proposedLastDay"><strong>Proposed Last Working Day:</strong> {{ r.proposedLastDay }}</div>
+                <div *ngIf="r.letter" class="mt-1 text-secondary"><em>"{{ r.letter }}"</em></div>
+                <div *ngIf="r.adminFeedback" class="mt-1 text-indigo"><strong>Admin Feedback:</strong> {{ r.adminFeedback }}</div>
               </div>
 
-            }
-
+              <div *ngIf="r.status === 'PENDING'" class="d-flex gap-2 justify-content-end">
+                <button class="btn btn-sm btn-outline-danger rounded-2" (click)="reviewResignation(r.id, 'REJECTED')">Reject ❌</button>
+                <button class="btn btn-sm btn-success rounded-2" (click)="reviewResignation(r.id, 'APPROVED')">Approve ✅</button>
+              </div>
+            </div>
           </div>
-
         </div>
+      </section>
 
-      </div>
-
-      <!-- RIGHT -->
-
-      <div
-  id="chat"
-  class="right-content"
->
-
-  <div
-    class="chat-panel"
-    [ngClass]="{
-      'minimized-chat': isChatMinimized,
-      'fullscreen-chat': isChatFullscreen
-    }"
-  >
-
-    <!-- HEADER -->
-
-    <div class="chat-header">
-
-      <h2 class="discussion-title">
-        Discuss Here
-      </h2>
-
-      <div class="chat-actions">
-
-        <button
-          class="chat-toggle-btn"
-          (click)="toggleMinimize()"
-        >
-          {{ isChatMinimized ? '⬆' : '⬇' }}
-        </button>
-
-        <button
-          class="chat-toggle-btn"
-          (click)="toggleFullscreen()"
-        >
-          ⛶
-        </button>
-
-      </div>
-
+      <!-- AUDIT LOGS -->
+      <section id="activity" class="card bg-surface border rounded-4 p-4 shadow-sm">
+        <h5 class="fw-bold text-main mb-3">Audit Activity Logs</h5>
+        <div style="max-height: 250px; overflow-y: auto;">
+          <div *ngFor="let log of activityLogs" class="p-2.5 border-bottom small d-flex justify-content-between align-items-center">
+            <div>
+              <span class="badge bg-secondary-subtle text-secondary me-2">{{ log.action }}</span>
+              <span class="text-main fw-medium">{{ log.details }}</span>
+            </div>
+            <span class="text-secondary fs-xs ms-2">{{ log.createdAt | date:'short' }}</span>
+          </div>
+        </div>
+      </section>
     </div>
 
-    <!-- BODY -->
+    <!-- RIGHT SECTION: DUAL CHAT CHANNELS -->
+    <div id="chat" class="col-lg-4">
+      <div class="card bg-surface border rounded-4 p-4 h-100 d-flex flex-column shadow-sm chat-wrapper">
+        <div class="chat-header pb-3 mb-3 border-bottom">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="d-flex align-items-center gap-2">
+              <div class="chat-avatar bg-indigo text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 34px; height: 34px;">
+                💬
+              </div>
+              <h6 class="fw-bold mb-0 text-main">Discussions</h6>
+            </div>
+            <a routerLink="/chat" class="btn btn-xs btn-indigo text-white rounded-pill px-2.5 py-1 text-decoration-none fw-semibold shadow-2xs">
+              Full Workspace Chat ⚡
+            </a>
+          </div>
 
-    <div
-      *ngIf="!isChatMinimized"
-      class="chat-body"
-    >
+          <!-- TRIPLE CHAT CHANNEL SWITCHER TABS -->
+          <div class="d-flex gap-1 bg-body-tertiary p-1 rounded-3 border">
+            <button
+              class="btn btn-xs w-33 rounded-2 fw-semibold fs-xs transition-all"
+              [ngClass]="activeChatChannel === 'ORGANIZATION' ? 'btn-indigo text-white shadow-2xs' : 'btn-light text-secondary'"
+              (click)="switchChatChannel('ORGANIZATION')"
+            >
+              🏢 Exec
+            </button>
+            <button
+              class="btn btn-xs w-33 rounded-2 fw-semibold fs-xs transition-all"
+              [ngClass]="activeChatChannel === 'TEAM' ? 'btn-indigo text-white shadow-2xs' : 'btn-light text-secondary'"
+              (click)="switchChatChannel('TEAM')"
+            >
+              👥 Team
+            </button>
+            <button
+              class="btn btn-xs w-33 rounded-2 fw-semibold fs-xs transition-all"
+              [ngClass]="activeChatChannel === 'DIRECT' ? 'btn-indigo text-white shadow-2xs' : 'btn-light text-secondary'"
+              (click)="switchChatChannel('DIRECT')"
+            >
+              💬 1-on-1
+            </button>
+          </div>
 
-      <!-- MESSAGES -->
+          <!-- SLACK DIRECT MESSAGES SEARCH & DIRECT COLleague LIST -->
+          <div *ngIf="activeChatChannel === 'DIRECT'" class="mt-2">
+            <input
+              type="text"
+              class="form-control form-control-sm rounded-3 mb-2 fs-xs"
+              placeholder="🔍 Search colleague by name or role..."
+              [(ngModel)]="chatSearchQuery"
+              (input)="filterColleagues()"
+            >
+            <div class="d-flex gap-1 overflow-x-auto pb-1" style="max-height: 42px;">
+              <button
+                *ngFor="let c of filteredColleagues"
+                class="btn btn-xs rounded-pill text-nowrap px-2.5 py-1 d-flex align-items-center gap-1 transition-all"
+                [ngClass]="selectedDirectUser?.id === c.id ? 'btn-indigo text-white' : 'btn-light border text-main'"
+                (click)="selectDirectUser(c)"
+              >
+                <span>👤</span> {{ c.name }}
+              </button>
+            </div>
+            <div *ngIf="selectedDirectUser" class="mt-1 fs-xxs text-indigo fw-bold">
+              Active DM Thread with {{ selectedDirectUser.name }} ({{ selectedDirectUser.designation || 'Team Member' }})
+            </div>
+          </div>
+        </div>
 
-      <div class="chat-messages">
-
-        @for(msg of messages; track msg.id){
+        <!-- MESSAGES CONTAINER -->
+        <div class="chat-messages flex-grow-1 overflow-auto pe-1 mb-3">
+          <div *ngIf="messages.length === 0" class="text-center text-secondary py-5 small">
+            No messages in <strong>{{ activeChatChannel }}</strong> chat yet. Type <strong>@name</strong> to mention colleagues.
+          </div>
 
           <div
-            class="message-wrapper"
-            [ngClass]="
-              msg.sender?.id === currentUser?.id
-              ? 'my-wrapper'
-              : 'other-wrapper'
-            "
+            *ngFor="let m of messages"
+            class="chat-bubble-row mb-3 d-flex flex-column"
+            [ngClass]="{
+              'align-items-end': m.sender?.name === adminName,
+              'align-items-start': m.sender?.name !== adminName
+            }"
           >
-
             <div
-              class="chat-bubble"
-              [ngClass]="
-                msg.sender?.id === currentUser?.id
-                ? 'my-message'
-                : 'other-message'
-              "
+              class="chat-bubble p-3 rounded-4 shadow-2xs position-relative"
+              [ngClass]="{
+                'bubble-outgoing bg-whatsapp-green text-dark rounded-bottom-end-0': m.sender?.name === adminName,
+                'bubble-incoming bg-light-surface text-main border rounded-bottom-start-0': m.sender?.name !== adminName
+              }"
+              style="max-width: 85%; min-width: 140px;"
             >
-
-              <div class="chat-user">
-
-                {{ msg.sender?.name }}
-
+              <div class="d-flex justify-content-between align-items-center gap-3 mb-1">
+                <span class="fw-bold fs-xs" [ngClass]="m.sender?.name === adminName ? 'text-emerald-800' : 'text-indigo'">
+                  {{ m.sender?.name || 'User' }}
+                </span>
+                <span class="fs-xxs opacity-75 text-secondary">{{ m.createdAt | date:'shortTime' }}</span>
               </div>
 
-              @if(msg.taggedUser){
-
-                <div class="tag-user">
-
-                  @{{ msg.taggedUser }}
-
-                </div>
-
-              }
-
-              <div class="chat-text">
-
-                {{ msg.message }}
-
+              <div *ngIf="m.taggedUser" class="badge bg-warning-subtle text-warning-emphasis mb-1">
+                @{{ m.taggedUser }}
               </div>
 
-              <div class="chat-time">
-
-                {{ msg.createdAt | date:'shortTime' }}
-
-              </div>
-
+              <p class="mb-0 text-break text-sm">{{ m.message }}</p>
             </div>
+          </div>
+        </div>
 
+        <!-- INPUT AREA WITH FLOATING TAG SUGGESTIONS -->
+        <div class="chat-input-box position-relative border-top pt-3 mt-auto">
+          <!-- FLOATING TAG SUGGESTIONS POPOVER -->
+          <div *ngIf="showTagSuggestions" class="tag-suggestions-popover position-absolute bottom-100 start-0 w-100 bg-surface border rounded-3 shadow-lg p-2 z-3 mb-2" style="max-height: 200px; overflow-y: auto;">
+            <small class="text-secondary fw-semibold px-2 d-block mb-1">Mention (@):</small>
+            <div
+              *ngFor="let u of filteredTagUsers"
+              class="tag-user-item p-2 rounded-2 hover-bg cursor-pointer d-flex align-items-center gap-2"
+              (click)="selectTagUser(u)"
+            >
+              <div class="avatar-sm bg-indigo-subtle text-indigo rounded-circle px-2 py-1 fw-bold fs-xs">
+                {{ u.name.charAt(0) }}
+              </div>
+              <div>
+                <strong class="d-block fs-xs text-main">{{ u.name }}</strong>
+                <small class="text-secondary fs-xxs">{{ u.designation || u.email }}</small>
+              </div>
+            </div>
           </div>
 
-        }
-
+          <textarea
+            rows="2"
+            class="form-control rounded-3 mb-2 chat-input-textarea"
+            autocomplete="off"
+            placeholder="Type message... (Use @ to tag employees)"
+            [(ngModel)]="newMessage"
+            (input)="onChatInput($event)"
+            (keydown.enter)="$event.preventDefault(); sendMessage()"
+          ></textarea>
+          <button class="btn btn-indigo text-white w-100 rounded-3 py-2 fw-semibold shadow-sm" (click)="sendMessage()">
+            Send Message ({{ activeChatChannel }})
+          </button>
+        </div>
       </div>
-
-      <!-- INPUT -->
-
-      <div class="chat-input-box">
-
-        <textarea
-          rows="2"
-          placeholder="Type message..."
-          [(ngModel)]="newMessage"
-        ></textarea>
-
-        <button
-          class="send-btn"
-          (click)="sendMessage()"
-        >
-
-          Send
-
-        </button>
-
-      </div>
-
     </div>
-
   </div>
 
+  <!-- TASK COMMENTS & DISCUSSION SLIDE-OVER MODAL -->
+  <div *ngIf="selectedTaskForComments" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center z-3" style="background-color: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px);">
+    <div class="card border-0 rounded-4 shadow-lg overflow-hidden w-100 max-w-2xl mx-3 bg-surface animate__animated animate__fadeInUp">
+      <div class="card-header bg-indigo text-white p-3.5 d-flex justify-content-between align-items-center border-0">
+        <div class="d-flex align-items-center gap-2">
+          <span class="fs-5">📋</span>
+          <div>
+            <h6 class="fw-bold mb-0 text-white">{{ selectedTaskForComments.title }}</h6>
+            <small class="text-white-50 fs-xs">Priority: {{ selectedTaskForComments.priority }} | Due: {{ selectedTaskForComments.dueDate || 'N/A' }}</small>
+          </div>
+        </div>
+        <button class="btn-close btn-close-white" (click)="closeTaskComments()" aria-label="Close"></button>
+      </div>
+
+      <div class="card-body p-4" style="max-height: 400px; overflow-y: auto;">
+        <div *ngIf="loadingComments" class="text-center py-4">
+          <div class="spinner-border text-indigo" role="status">
+            <span class="visually-hidden">Loading comments...</span>
+          </div>
+        </div>
+
+        <div *ngIf="!loadingComments && taskComments.length === 0" class="text-center py-4 text-secondary fs-xs">
+          💬 No comments posted on this task yet. Start the conversation below!
+        </div>
+
+        <div *ngIf="!loadingComments && taskComments.length > 0" class="d-flex flex-column gap-3">
+          <div *ngFor="let c of taskComments" class="p-3 rounded-3 border bg-body-tertiary">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <strong class="text-main fs-xs">👤 {{ c.user?.name || 'User' }}</strong>
+              <small class="text-secondary fs-xxs">{{ c.createdAt | date:'short' }}</small>
+            </div>
+            <p class="mb-0 fs-xs text-main text-break">{{ c.message }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer bg-body-tertiary p-3 border-top d-flex gap-2">
+        <input
+          type="text"
+          class="form-control rounded-3"
+          placeholder="Add a comment or update to this task..."
+          [(ngModel)]="newCommentText"
+          (keyup.enter)="submitTaskComment()"
+        >
+        <button class="btn btn-indigo text-white px-4 rounded-3 fw-semibold flex-shrink-0" (click)="submitTaskComment()" [disabled]="submittingComment">
+          Post
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

@@ -1,0 +1,109 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.owner-dashboard {
+  width: 100%;
+}
+
+.bg-surface {
+  background-color: #ffffff;
+}
+
+.text-main {
+  color: #0f172a;
+}
+
+.text-secondary {
+  color: #64748b;
+}
+
+.text-indigo {
+  color: #4f46e5 !important;
+}
+
+.bg-indigo {
+  background-color: #4f46e5 !important;
+}
+
+.bg-indigo-subtle {
+  background-color: #e0e7ff !important;
+}
+
+.btn-indigo {
+  background-color: #6366f1;
+  border-color: #6366f1;
+}
+
+.btn-indigo:hover {
+  background-color: #4f46e5;
+  border-color: #4f46e5;
+}
+
+.bg-purple {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+}
+
+.bg-gradient-blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.bg-gradient-green {
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+}
+
+.bg-gradient-amber {
+  background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+}
+
+.bg-slate-900 {
+  background-color: #0f172a !important;
+}
+
+.fs-xs {
+  font-size: 0.75rem;
+}
+
+.fs-xxs {
+  font-size: 0.65rem;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.transition-all {
+  transition: all 0.2s ease;
+}
+
+.hover-bg:hover {
+  background-color: #f1f5f9 !important;
+  transform: translateY(-2px);
+}
+
+.modal-backdrop-custom {
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
+  z-index: 1100;
+}
+
+.max-w-2xl {
+  max-width: 680px;
+}
+
+.max-w-lg {
+  max-width: 520px;
+}
+
+.bg-whatsapp-green {
+  background-color: #d9fdd3 !important;
+}
+
+.bg-light-surface {
+  background-color: #f8fafc !important;
+}
+
+.text-emerald-800 {
+  color: #065f46 !important;
+}

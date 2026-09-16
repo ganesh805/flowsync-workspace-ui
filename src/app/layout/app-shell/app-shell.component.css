@@ -1,0 +1,184 @@
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.app-shell-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* SIDEBAR SHELL CONTAINER */
+.app-shell-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 1000;
+  background-color: #0f172a;
+}
+
+/* MAIN CONTENT SHELL CONTAINER */
+.app-shell-main {
+  flex: 1 1 0%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8fafc;
+}
+
+/* APP HEADER */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+}
+
+.header-logo-img {
+  flex-shrink: 0 !important;
+}
+
+.me-2\.5 {
+  margin-right: 0.625rem !important;
+}
+
+/* HORIZONTAL MARQUEE SCROLLING ANIMATION (FULL WIDE WHITE SPACE) */
+.header-marquee-wide-container {
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 38px;
+}
+
+.header-marquee-text {
+  display: inline-block;
+  white-space: nowrap;
+  animation: headerMarquee 15s linear infinite;
+  padding-left: 100%;
+}
+
+.header-marquee-wide-container:hover .header-marquee-text {
+  animation-play-state: paused;
+}
+
+@keyframes headerMarquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.notification-badge-count {
+  top: -4px;
+  right: -4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  font-size: 0.7rem;
+  line-height: 1;
+  z-index: 10;
+}
+
+.bg-surface {
+  background-color: #ffffff;
+}
+
+.text-main {
+  color: #0f172a;
+}
+
+.text-secondary {
+  color: #64748b;
+}
+
+.text-indigo {
+  color: #4f46e5 !important;
+}
+
+.bg-indigo-subtle {
+  background-color: #e0e7ff !important;
+}
+
+.fs-xs {
+  font-size: 0.75rem;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.hover-bg:hover {
+  background-color: #f1f5f9;
+}
+
+/* DARK MODE OVERRIDES */
+.app-shell-container.dark-mode {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+.app-shell-container.dark-mode .app-shell-main {
+  background-color: #0f172a !important;
+}
+
+.app-shell-container.dark-mode .app-header,
+.app-shell-container.dark-mode .bg-surface {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.app-shell-container.dark-mode .notification-badge-count {
+  border-color: #1e293b !important;
+}
+
+.app-shell-container.dark-mode .text-main {
+  color: #f8fafc !important;
+}
+
+.app-shell-container.dark-mode .text-secondary {
+  color: #94a3b8 !important;
+}
+
+.app-shell-container.dark-mode .hover-bg:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* MOBILE RESPONSIVE DRAWERS */
+@media (max-width: 991.98px) {
+  .app-shell-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .app-shell-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .mobile-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+  }
+}

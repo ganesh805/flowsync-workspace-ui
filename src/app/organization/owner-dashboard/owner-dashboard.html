@@ -1,0 +1,446 @@
+<div class="owner-dashboard py-2">
+  <!-- PAGE HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center gap-3">
+      <img
+        *ngIf="org?.logoUrl"
+        [src]="org?.logoUrl"
+        alt="Logo"
+        class="rounded-3 border bg-white p-1 shadow-sm"
+        style="width: 52px; height: 52px; object-fit: contain;"
+      >
+      <div>
+        <h2 class="fw-bold text-main mb-1 tracking-tight">{{ org?.companyName || 'Organization' }}</h2>
+        <p class="text-secondary mb-0 small">
+          Company Code: <strong class="font-monospace text-indigo">{{ org?.companyCode }}</strong> • Domain: <span class="text-indigo">{{ org?.companyDomain }}</span>
+        </p>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <button (click)="openCreateLeadModal()" class="btn btn-indigo text-white rounded-pill px-3 shadow-sm btn-sm fw-semibold">
+        + Create Team Lead / Manager
+      </button>
+      <a routerLink="/organization" class="btn btn-outline-secondary rounded-pill px-3 btn-sm fw-semibold">
+        ⚙️ Organization Settings
+      </a>
+    </div>
+  </div>
+
+  <!-- LOADING SPINNER -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-indigo" role="status">
+      <span class="visually-hidden">Loading metrics...</span>
+    </div>
+  </div>
+
+  <!-- METRICS CARDS GRID -->
+  <div *ngIf="!loading && metrics" class="row g-3 mb-4">
+    <div class="col-md-4 col-lg-2">
+      <div class="card stat-card border-0 p-3 rounded-4 shadow-sm bg-indigo text-white h-100">
+        <small class="text-white-50 text-uppercase fw-bold fs-xxs">Total Employees</small>
+        <h3 class="fw-bold my-1 fs-2">{{ metrics.totalEmployees }}</h3>
+        <span class="fs-xxs text-white-50">Active workforce</span>
+      </div>
+    </div>
+
+    <div class="col-md-4 col-lg-2">
+      <div class="card stat-card border-0 p-3 rounded-4 shadow-sm bg-gradient-blue text-white h-100">
+        <small class="text-white-50 text-uppercase fw-bold fs-xxs">Total Teams</small>
+        <h3 class="fw-bold my-1 fs-2">{{ metrics.totalTeams }}</h3>
+        <span class="fs-xxs text-white-50">Departments</span>
+      </div>
+    </div>
+
+    <div class="col-md-4 col-lg-2">
+      <div class="card stat-card border-0 p-3 rounded-4 shadow-sm bg-slate-900 text-white h-100">
+        <small class="text-white-50 text-uppercase fw-bold fs-xxs">Total Tasks</small>
+        <h3 class="fw-bold my-1 fs-2">{{ metrics.totalTasks }}</h3>
+        <span class="fs-xxs text-white-50">Overall workload</span>
+      </div>
+    </div>
+
+    <div class="col-md-4 col-lg-2">
+      <div class="card stat-card border-0 p-3 rounded-4 shadow-sm bg-gradient-green text-white h-100">
+        <small class="text-white-50 text-uppercase fw-bold fs-xxs">Completed</small>
+        <h3 class="fw-bold my-1 fs-2">{{ metrics.completedTasks }}</h3>
+        <span class="fs-xxs text-white-50">Verified tasks</span>
+      </div>
+    </div>
+
+    <div class="col-md-4 col-lg-2">
+      <div class="card stat-card border-0 p-3 rounded-4 shadow-sm bg-gradient-amber text-white h-100">
+        <small class="text-white-50 text-uppercase fw-bold fs-xxs">Pending</small>
+        <h3 class="fw-bold my-1 fs-2">{{ metrics.pendingTasks }}</h3>
+        <span class="fs-xxs text-white-50">In queue / progress</span>
+      </div>
+    </div>
+
+    <div class="col-md-4 col-lg-2">
+      <div class="card stat-card border-0 p-3 rounded-4 shadow-sm bg-purple text-white h-100">
+        <small class="text-white-50 text-uppercase fw-bold fs-xxs">Completion Rate</small>
+        <h3 class="fw-bold my-1 fs-2">{{ metrics.completionRate }}%</h3>
+        <span class="fs-xxs text-white-50">Efficiency metric</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEAM LEADS DIRECTORY SECTION -->
+  <div class="card bg-surface border rounded-4 p-4 mb-4 shadow-sm">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h5 class="fw-bold text-main mb-0">Team Leads & Managers ({{ teamLeads.length }})</h5>
+        <small class="text-secondary">Click on any Team Lead to inspect contact details and their assigned team mates.</small>
+      </div>
+      <button class="btn btn-sm btn-indigo text-white rounded-pill px-3 shadow-sm" (click)="openCreateLeadModal()">
+        + Create Team Lead / Manager
+      </button>
+    </div>
+
+    <div *ngIf="teamLeads.length === 0" class="text-center py-4 text-secondary small">
+      No Team Leads created yet. Click "+ Create Team Lead / Manager" to assign Team Lead accounts with emails and passwords.
+    </div>
+
+    <div *ngIf="teamLeads.length > 0" class="row g-3">
+      <div *ngFor="let lead of teamLeads" class="col-md-6 col-lg-4">
+        <div
+          class="card bg-body-tertiary border p-3 rounded-3 h-100 shadow-2xs hover-bg cursor-pointer transition-all"
+          (click)="openTeamLeadModal(lead)"
+        >
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <div class="avatar-lg bg-indigo text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5" style="width: 44px; height: 44px;">
+              {{ lead.name.charAt(0) }}
+            </div>
+            <div class="overflow-hidden">
+              <h6 class="fw-bold text-main mb-0 text-truncate">{{ lead.name }}</h6>
+              <span class="badge bg-indigo-subtle text-indigo fs-xxs rounded-pill">{{ lead.designation || 'Team Lead' }}</span>
+            </div>
+          </div>
+
+          <div class="fs-xs text-secondary mb-2">
+            <div class="text-truncate">📧 {{ lead.email }}</div>
+            <div *ngIf="lead.phone">📞 {{ lead.phone }}</div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-auto fs-xs">
+            <span class="text-secondary">Team Size:</span>
+            <span class="badge rounded-pill" [ngClass]="lead.memberCount >= 20 ? 'bg-danger text-white' : 'bg-success-subtle text-success'">
+              {{ lead.memberCount }} / 20 Employees
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- TEAMS OVERVIEW GRID -->
+    <div class="col-lg-7">
+      <div class="card bg-surface border rounded-4 p-4 shadow-sm mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-main mb-0">Organization Teams ({{ teams.length }})</h5>
+          <a routerLink="/organization/teams" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+            + Manage Teams
+          </a>
+        </div>
+
+        <div *ngIf="teams.length === 0" class="text-center py-4 text-secondary small">
+          No teams created yet. Click "+ Manage Teams" to group employees into departments.
+        </div>
+
+        <div *ngIf="teams.length > 0" class="row g-3">
+          <div *ngFor="let t of teams" class="col-md-6">
+            <div class="card bg-body-tertiary border p-3 rounded-3 h-100 shadow-2xs">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="fw-bold mb-0 text-main">{{ t.name }}</h6>
+                <span class="badge bg-indigo-subtle text-indigo rounded-pill">{{ t.memberCount }} members</span>
+              </div>
+              <p class="small text-secondary mb-2 text-clamp-2">{{ t.description || 'No description' }}</p>
+              <small class="d-block text-secondary fs-xs mb-2">Team Lead: <strong class="text-main">{{ t.leadName || 'Unassigned' }}</strong></small>
+              <div class="progress mb-2" style="height: 6px;">
+                <div class="progress-bar bg-success" [style.width.%]="t.completionRate"></div>
+              </div>
+              <div class="d-flex justify-content-between fs-xxs text-secondary">
+                <span>Completed: {{ t.completedTasks }}</span>
+                <span>Active: {{ t.activeTasks }}</span>
+                <span>Rate: {{ t.completionRate }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORGANIZATION RESIGNATION REQUESTS OVERSIGHT -->
+      <div class="card bg-surface border rounded-4 p-4 shadow-sm mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-main mb-0">Company Resignation Requests ({{ resignations.length }})</h5>
+          <span class="badge bg-secondary-subtle text-secondary rounded-pill">Executive Oversight</span>
+        </div>
+
+        <div *ngIf="resignations.length === 0" class="text-center py-4 text-secondary small">
+          No employee resignation requests active in the company.
+        </div>
+
+        <div *ngIf="resignations.length > 0" class="row g-3">
+          <div *ngFor="let r of resignations" class="col-md-12">
+            <div class="card bg-body-tertiary border p-3 rounded-3 shadow-2xs">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <h6 class="fw-bold mb-0 text-main">{{ r.employee?.name || 'Employee' }}</h6>
+                  <small class="text-secondary fs-xs">{{ r.employee?.email }} • Code: {{ r.employee?.employeeCode || 'EMP' }}</small>
+                </div>
+                <span
+                  class="badge rounded-pill text-uppercase fs-xs"
+                  [ngClass]="{
+                    'bg-warning-subtle text-warning-emphasis': r.status === 'PENDING',
+                    'bg-success-subtle text-success': r.status === 'APPROVED',
+                    'bg-danger-subtle text-danger': r.status === 'REJECTED'
+                  }"
+                >
+                  {{ r.status }}
+                </span>
+              </div>
+
+              <div class="p-2.5 bg-white rounded-3 border mb-2 fs-xs text-main">
+                <div><strong>Reason:</strong> {{ r.reason }}</div>
+                <div *ngIf="r.proposedLastDay"><strong>Proposed Last Day:</strong> {{ r.proposedLastDay }}</div>
+                <div *ngIf="r.letter" class="mt-1 text-secondary"><em>"{{ r.letter }}"</em></div>
+                <div *ngIf="r.adminFeedback" class="mt-1 text-indigo"><strong>Executive Feedback:</strong> {{ r.adminFeedback }}</div>
+              </div>
+
+              <div *ngIf="r.status === 'PENDING'" class="d-flex gap-2 justify-content-end">
+                <button class="btn btn-sm btn-outline-danger rounded-2" (click)="reviewResignation(r.id, 'REJECTED')">Reject ❌</button>
+                <button class="btn btn-sm btn-success rounded-2" (click)="reviewResignation(r.id, 'APPROVED')">Approve ✅</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WHATSAPP-STYLE LIVE CHAT WITH TEAM LEADS -->
+    <div class="col-lg-5">
+      <div class="card border rounded-4 p-4 bg-surface shadow-sm chat-wrapper h-100 d-flex flex-column">
+        <div class="chat-header pb-3 mb-3 border-bottom">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="d-flex align-items-center gap-2">
+              <div class="chat-avatar bg-indigo text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">
+                💬
+              </div>
+              <div>
+                <h6 class="fw-bold mb-0 text-main">Company Chat</h6>
+                <small class="text-success fw-medium">● {{ activeChatChannel === 'DIRECT' ? (selectedDirectUser ? 'Private with ' + selectedDirectUser.name : 'Select Team Lead') : 'Executive Channel' }}</small>
+              </div>
+            </div>
+
+            <!-- CHANNEL SWITCHER -->
+            <div class="d-flex align-items-center gap-1.5">
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-indigo" [class.active]="activeChatChannel === 'ORGANIZATION'" (click)="switchChatChannel('ORGANIZATION')">
+                  Exec
+                </button>
+                <button class="btn btn-outline-indigo" [class.active]="activeChatChannel === 'DIRECT'" (click)="switchChatChannel('DIRECT')">
+                  1-on-1
+                </button>
+              </div>
+              <a routerLink="/chat" class="btn btn-xs btn-indigo text-white rounded-pill px-2.5 py-1 text-decoration-none fw-semibold shadow-2xs">
+                Full Chat ⚡
+              </a>
+            </div>
+          </div>
+
+          <!-- DIRECT USER PICKER DROPDOWN -->
+          <div *ngIf="activeChatChannel === 'DIRECT'" class="mt-2">
+            <select class="form-select form-select-sm rounded-3" (change)="selectDirectUser(teamLeads[$any($event.target).value])">
+              <option value="" disabled [selected]="!selectedDirectUser">-- Select Team Lead / Employee --</option>
+              <option *ngFor="let u of teamLeads; let idx = index" [value]="idx">
+                👤 {{ u.name }} ({{ u.designation || 'Team Lead' }})
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- MESSAGES CONTAINER -->
+        <div class="chat-messages flex-grow-1 overflow-auto pe-1 mb-3" style="max-height: 400px;">
+          <div *ngIf="messages.length === 0" class="text-center text-secondary py-5 small">
+            No chat messages yet. Type <strong>@name</strong> to mention Team Leads.
+          </div>
+
+          <div
+            *ngFor="let m of messages"
+            class="chat-bubble-row mb-3 d-flex flex-column"
+            [ngClass]="{
+              'align-items-end': m.sender?.name === authState.getNickname(),
+              'align-items-start': m.sender?.name !== authState.getNickname()
+            }"
+          >
+            <div
+              class="chat-bubble p-3 rounded-4 shadow-2xs position-relative"
+              [ngClass]="{
+                'bubble-outgoing bg-whatsapp-green text-dark rounded-bottom-end-0': m.sender?.name === authState.getNickname(),
+                'bubble-incoming bg-light-surface text-main border rounded-bottom-start-0': m.sender?.name !== authState.getNickname()
+              }"
+              style="max-width: 85%; min-width: 140px;"
+            >
+              <div class="d-flex justify-content-between align-items-center gap-3 mb-1">
+                <span class="fw-bold fs-xs" [ngClass]="m.sender?.name === authState.getNickname() ? 'text-emerald-800' : 'text-indigo'">
+                  {{ m.sender?.name || 'User' }}
+                </span>
+                <span class="fs-xxs opacity-75 text-secondary">{{ m.createdAt | date:'shortTime' }}</span>
+              </div>
+
+              <div *ngIf="m.taggedUser" class="badge bg-warning-subtle text-warning-emphasis mb-1">
+                @{{ m.taggedUser }}
+              </div>
+
+              <p class="mb-0 text-break text-sm">{{ m.message }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- INPUT AREA WITH FLOATING TAG SUGGESTIONS -->
+        <div class="chat-input-box position-relative border-top pt-3 mt-auto">
+          <!-- FLOATING TAG SUGGESTIONS POPOVER -->
+          <div *ngIf="showTagSuggestions" class="tag-suggestions-popover position-absolute bottom-100 start-0 w-100 bg-surface border rounded-3 shadow-lg p-2 z-3 mb-2" style="max-height: 200px; overflow-y: auto;">
+            <small class="text-secondary fw-semibold px-2 d-block mb-1">Mention Team Lead (@):</small>
+            <div
+              *ngFor="let u of filteredTagUsers"
+              class="tag-user-item p-2 rounded-2 hover-bg cursor-pointer d-flex align-items-center gap-2"
+              (click)="selectTagUser(u)"
+            >
+              <div class="avatar-sm bg-indigo-subtle text-indigo rounded-circle px-2 py-1 fw-bold fs-xs">
+                {{ u.name.charAt(0) }}
+              </div>
+              <div>
+                <strong class="d-block fs-xs text-main">{{ u.name }}</strong>
+                <small class="text-secondary fs-xxs">{{ u.designation || u.email }}</small>
+              </div>
+            </div>
+          </div>
+
+          <textarea
+            rows="2"
+            class="form-control rounded-3 mb-2 chat-input-textarea"
+            autocomplete="off"
+            [(ngModel)]="newMessage"
+            (input)="onChatInput($event)"
+            (keydown.enter)="$event.preventDefault(); sendMessage()"
+          ></textarea>
+          <button class="btn btn-indigo text-white w-100 rounded-3 py-2 fw-semibold shadow-sm" (click)="sendMessage()">
+            Send Message
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE TEAM LEAD / MANAGER MODAL -->
+<div *ngIf="showCreateLeadModal" class="modal-backdrop-custom position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3 z-3">
+  <div class="card bg-surface border rounded-4 shadow-lg w-100 max-w-lg p-4">
+    <div class="d-flex justify-content-between align-items-center pb-3 border-bottom mb-3">
+      <h5 class="fw-bold text-main mb-0">Create Team Lead / Manager</h5>
+      <button class="btn-close" (click)="closeCreateLeadModal()"></button>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label text-secondary fs-xs fw-semibold">Full Name</label>
+        <input type="text" class="form-control rounded-3" autocomplete="off" [(ngModel)]="newLeadName">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label text-secondary fs-xs fw-semibold">Department / Team Name *</label>
+        <input type="text" class="form-control rounded-3" autocomplete="off" placeholder="e.g. Development, Marketing" [(ngModel)]="newLeadDesignation">
+      </div>
+      <div class="col-md-12">
+        <label class="form-label text-secondary fs-xs fw-semibold">Company Email (@{{ org?.companyDomain }})</label>
+        <input type="email" class="form-control rounded-3" autocomplete="off" [(ngModel)]="newLeadEmail">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label text-secondary fs-xs fw-semibold">Username (optional)</label>
+        <input type="text" class="form-control rounded-3" autocomplete="off" [(ngModel)]="newLeadUsername">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label text-secondary fs-xs fw-semibold">Temporary Password</label>
+        <input type="password" class="form-control rounded-3" autocomplete="new-password" [(ngModel)]="newLeadPassword">
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+      <button class="btn btn-outline-secondary rounded-3 px-4 py-2 btn-sm" (click)="closeCreateLeadModal()">Cancel</button>
+      <button class="btn btn-indigo text-white rounded-3 px-4 py-2 btn-sm fw-bold shadow-sm" (click)="createTeamLead()" [disabled]="creatingLead">
+        {{ creatingLead ? 'Creating Account...' : 'Create Team Lead Account' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TEAM LEAD DETAILS & TEAM MATES MODAL -->
+<div *ngIf="selectedTeamLead" class="modal-backdrop-custom position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3 z-3">
+  <div class="card bg-surface border rounded-4 shadow-lg w-100 max-w-2xl p-4 overflow-hidden">
+    <div class="d-flex justify-content-between align-items-start pb-3 border-bottom mb-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="avatar-lg bg-indigo text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4" style="width: 52px; height: 52px;">
+          {{ selectedTeamLead.name.charAt(0) }}
+        </div>
+        <div>
+          <h4 class="fw-bold text-main mb-0">{{ selectedTeamLead.name }}</h4>
+          <span class="badge bg-indigo-subtle text-indigo rounded-pill fs-xs me-2">{{ selectedTeamLead.designation || 'Team Lead' }}</span>
+          <span class="badge bg-secondary-subtle text-secondary rounded-pill fs-xs">Team Lead (ADMIN)</span>
+        </div>
+      </div>
+      <button class="btn-close" (click)="closeTeamLeadModal()"></button>
+    </div>
+
+    <!-- CONTACT DETAILS -->
+    <div class="row g-3 mb-4 p-3 bg-body-tertiary rounded-3 border fs-xs">
+      <div class="col-md-6">
+        <span class="text-secondary d-block">Company Email:</span>
+        <strong class="text-main">{{ selectedTeamLead.email }}</strong>
+      </div>
+      <div class="col-md-6">
+        <span class="text-secondary d-block">Phone Contact:</span>
+        <strong class="text-main">{{ selectedTeamLead.phone || 'Not provided' }}</strong>
+      </div>
+      <div class="col-md-6">
+        <span class="text-secondary d-block">System Username:</span>
+        <strong class="text-indigo">{{ selectedTeamLead.username || selectedTeamLead.email }}</strong>
+      </div>
+      <div class="col-md-6">
+        <span class="text-secondary d-block">Created Team Mates:</span>
+        <strong class="text-success">{{ selectedTeamLead.memberCount }} / 20 Employees</strong>
+      </div>
+    </div>
+
+    <!-- ASSIGNED TEAM MATES TABLE -->
+    <h6 class="fw-bold text-main mb-2">Assigned Team Mates / Created Employees ({{ selectedTeamLead.teamMembers.length }})</h6>
+    <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+      <table class="table align-middle table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="fs-xs text-uppercase text-secondary">Code</th>
+            <th class="fs-xs text-uppercase text-secondary">Employee Name</th>
+            <th class="fs-xs text-uppercase text-secondary">Designation</th>
+            <th class="fs-xs text-uppercase text-secondary">Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="selectedTeamLead.teamMembers.length === 0">
+            <td colspan="4" class="text-center py-4 text-secondary small">No employees created under this Team Lead yet.</td>
+          </tr>
+          <tr *ngFor="let emp of selectedTeamLead.teamMembers">
+            <td>
+              <span class="badge bg-dark font-monospace text-white px-2 py-1 fs-xxs">{{ emp.employeeCode || 'EMP001' }}</span>
+            </td>
+            <td><strong class="text-main fs-xs">{{ emp.name }}</strong></td>
+            <td><span class="badge bg-secondary-subtle text-secondary rounded-pill fs-xxs">{{ emp.designation || 'Member' }}</span></td>
+            <td class="text-secondary fs-xs">{{ emp.email }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pt-3 border-top mt-3 text-end">
+      <button class="btn btn-outline-secondary rounded-3 px-4 py-1.5 btn-sm" (click)="closeTeamLeadModal()">Close</button>
+    </div>
+  </div>
+</div>

@@ -1,16 +1,11 @@
 <div class="login-container">
-
   <div class="login-card">
-
     <div class="brand">
-
       <img
         src="images/flowsync-logo.png"
         alt="FlowSync"
         class="logo">
-
       <h1>FlowSync</h1>
-
     </div>
 
     <h2>Welcome back</h2>
@@ -20,39 +15,30 @@
     </p>
 
     <div class="input-group">
-
       <label>Email Address</label>
-
       <input
         type="email"
-        [(ngModel)]="email"
-        placeholder="name@company.com">
-
+        autocomplete="off"
+        [(ngModel)]="email">
     </div>
 
     <div class="input-group">
-
       <label>Password</label>
-
       <input
         type="password"
-        [(ngModel)]="password"
-        placeholder="Enter password">
-
+        autocomplete="current-password"
+        [(ngModel)]="password">
     </div>
 
     <button
       class="login-btn"
       (click)="login()">
-
       Login
-
     </button>
 
     <div class="divider"></div>
 
     <div class="bottom-links">
-
       <a routerLink="/register-company">
         Create Company Workspace
       </a>
@@ -60,9 +46,6 @@
       <a routerLink="/register">
         Employee Registration
       </a>
-
     </div>
-
   </div>
-
 </div>

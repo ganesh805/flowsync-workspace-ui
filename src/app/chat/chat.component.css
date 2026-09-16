@@ -1,0 +1,19 @@
+.slack-chat-workspace {
+  font-family: inherit;
+}
+
+.chat-sidebar {
+  user-select: none;
+}
+
+.message-card-row:hover .group-hover-opacity-100 {
+  opacity: 1 !important;
+}
+
+.whitespace-pre-wrap {
+  white-space: pre-wrap;
+}
+
+.resize-none {
+  resize: none;
+}

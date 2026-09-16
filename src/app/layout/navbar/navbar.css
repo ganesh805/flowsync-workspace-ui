@@ -1,0 +1,18 @@
+.glass-navbar {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+.dark-theme .glass-navbar {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(51, 65, 85, 0.8) !important;
+}
+
+.bg-indigo-subtle {
+  background-color: #e0e7ff !important;
+}
+
+.text-indigo {
+  color: #4f46e5 !important;
+}

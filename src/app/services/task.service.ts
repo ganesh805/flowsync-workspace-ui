@@ -1,78 +1,45 @@
 import { Injectable } from '@angular/core';
-
-import {
-  HttpClient,
-  HttpHeaders
-} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TaskService {
-
-  API = 'https://flowsync-workspace-api-2.onrender.com/api/tasks';
+  private API = `${environment.apiUrl}/tasks`;
 
   constructor(private http: HttpClient) {}
 
-  private getHeaders() {
-
-    const token = localStorage.getItem('token');
-
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
+  getTasks(): Observable<any[]> {
+    return this.http.get<any[]>(this.API);
   }
 
-  getTasks() {
-
-    return this.http.get<any>(
-      this.API,
-      {
-        headers: this.getHeaders()
-      }
-    );
+  getTaskById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.API}/${id}`);
   }
 
-  createTask(task: any) {
-
-    return this.http.post(
-      this.API,
-      task,
-      {
-        headers: this.getHeaders()
-      }
-    );
+  createTask(task: any): Observable<any> {
+    return this.http.post(this.API, task);
   }
 
-  updateTask(id: number, task: any) {
-
-    return this.http.put(
-      `${this.API}/${id}`,
-      task,
-      {
-        headers: this.getHeaders()
-      }
-    );
+  updateTask(id: number, task: any): Observable<any> {
+    return this.http.put(`${this.API}/${id}`, task);
   }
 
-  deleteTask(id: number) {
-
-    return this.http.delete(
-      `${this.API}/${id}`,
-      {
-        headers: this.getHeaders()
-      }
-    );
+  deleteTask(id: number): Observable<any> {
+    return this.http.delete(`${this.API}/${id}`);
   }
 
-  updateTaskStatus(id: number, status: string) {
+  updateTaskStatus(id: number, status: string): Observable<any> {
+    return this.http.put(`${this.API}/${id}/status?status=${encodeURIComponent(status)}`, {});
+  }
 
-    return this.http.put(
-      `${this.API}/${id}/status?status=${status}`,
-      {},
-      {
-        headers: this.getHeaders()
-      }
-    );
+  getTaskComments(taskId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.API}/${taskId}/comments`);
+  }
+
+  addTaskComment(taskId: number, message: string): Observable<any> {
+    return this.http.post<any>(`${this.API}/${taskId}/comments`, { message });
   }
 }

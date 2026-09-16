@@ -1,95 +1,92 @@
-<div class="container py-5">
-
-  <div class="card shadow p-4 mb-4">
-
-    <h2>
-
-      {{ task?.title }}
-
-    </h2>
-
-    <p>
-
-      {{ task?.description }}
-
-    </p>
-
-
-    <p>
-
-      <strong>Status:</strong>
-
-      {{ task?.status }}
-
-    </p>
-
-    <p>
-
-      <strong>Priority:</strong>
-
-      {{ task?.priority }}
-
-    </p>
-
-    <p>
-
-      <strong>Due Date:</strong>
-
-      {{ task?.dueDate }}
-
-    </p>
-
+<div class="container-fluid max-w-4xl py-2">
+  <!-- TOP NAVIGATION -->
+  <div class="mb-4 d-flex align-items-center justify-content-between">
+    <button class="btn btn-outline-secondary rounded-pill px-3" (click)="loadTask(task?.id || 1)">
+      ← Back
+    </button>
+    <span class="badge bg-indigo-subtle text-indigo font-monospace fs-xs">Task ID: #{{ task?.id }}</span>
   </div>
 
-  <!-- COMMENTS -->
+  <!-- LOADING SPINNER -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-indigo" role="status">
+      <span class="visually-hidden">Loading task details...</span>
+    </div>
+  </div>
 
-  <div class="card shadow p-4">
+  <!-- TASK CARD -->
+  <div *ngIf="!loading && task" class="card bg-surface border rounded-4 shadow-sm p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <h2 class="fw-bold text-main mb-2">{{ task.title }}</h2>
+        <small class="text-secondary">Created by: {{ task.createdBy?.name || 'System' }}</small>
+      </div>
 
-    <h4 class="mb-4">
+      <div class="d-flex gap-2">
+        <span class="badge px-3 py-2 rounded-pill fs-xs text-uppercase"
+          [ngClass]="{
+            'bg-danger-subtle text-danger': task.priority === 'HIGH',
+            'bg-warning-subtle text-warning-emphasis': task.priority === 'MEDIUM',
+            'bg-info-subtle text-info': task.priority === 'LOW'
+          }"
+        >
+          {{ task.priority }} Priority
+        </span>
 
-      Task Comments
-
-    </h4>
-
-    <div
-  *ngFor="let comment of comments"
-  class="comment-box"
->
-
-  <h6 class="fw-bold">
-    {{ comment.user?.name }}
-  </h6>
-
-  <p class="mb-1">
-    {{ comment.message }}
-  </p>
-
-  <small class="text-muted">
-    {{ comment.createdAt | date:'medium' }}
-  </small>
-
-</div>
-
-    <div class="mt-4">
-
-      <textarea
-        class="form-control mb-3"
-        rows="3"
-        placeholder="Add Comment"
-        [(ngModel)]="newComment"
-      ></textarea>
-
-      <button
-        class="btn btn-primary"
-        (click)="addComment()"
-      >
-
-        Add Comment
-
-      </button>
-
+        <span class="badge px-3 py-2 rounded-pill fs-xs text-uppercase"
+          [ngClass]="task.status === 'COMPLETED' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning-emphasis'"
+        >
+          {{ task.status }}
+        </span>
+      </div>
     </div>
 
+    <p class="text-main lead mb-4">{{ task.description || 'No detailed description provided.' }}</p>
+
+    <div class="row g-3 p-3 bg-body-tertiary rounded-3 border">
+      <div class="col-md-4">
+        <small class="text-secondary d-block fs-xs">Assigned To</small>
+        <strong class="text-main">{{ task.assignedTo?.name || 'Unassigned' }}</strong>
+      </div>
+      <div class="col-md-4">
+        <small class="text-secondary d-block fs-xs">Due Date</small>
+        <strong class="text-main">{{ task.dueDate || 'N/A' }}</strong>
+      </div>
+      <div class="col-md-4">
+        <small class="text-secondary d-block fs-xs">Organization</small>
+        <strong class="text-main">{{ task.organization?.companyName || 'Workspace' }}</strong>
+      </div>
+    </div>
   </div>
 
+  <!-- COMMENTS SECTION -->
+  <div *ngIf="!loading && task" class="card bg-surface border rounded-4 shadow-sm p-4">
+    <h5 class="fw-bold text-main mb-4">Task Discussion & Comments</h5>
+
+    <div class="comments-list mb-4" style="max-height: 400px; overflow-y: auto;">
+      <div *ngIf="comments.length === 0" class="text-center text-secondary py-4 small">
+        No comments yet on this task.
+      </div>
+
+      <div *ngFor="let c of comments" class="comment-item p-3 mb-3 bg-body-tertiary border rounded-3">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <strong class="text-indigo small">{{ c.user?.name || 'User' }}</strong>
+          <small class="text-secondary fs-xs">{{ c.createdAt | date:'medium' }}</small>
+        </div>
+        <p class="mb-0 text-main small">{{ c.message }}</p>
+      </div>
+    </div>
+
+    <div class="add-comment border-top pt-3">
+      <textarea
+        class="form-control rounded-3 mb-3"
+        rows="3"
+        autocomplete="off"
+        [(ngModel)]="newComment"
+      ></textarea>
+      <button class="btn btn-indigo text-white rounded-3 px-4 py-2 fw-semibold shadow-sm" (click)="addComment()" [disabled]="submittingComment">
+        {{ submittingComment ? 'Posting...' : 'Post Comment' }}
+      </button>
+    </div>
+  </div>
 </div>

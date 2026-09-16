@@ -1,0 +1,111 @@
+<div class="team-management py-2">
+  <!-- PAGE HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div>
+      <h2 class="fw-bold text-main mb-1">Organization Teams Overview</h2>
+      <p class="text-secondary mb-0 small">View and manage company departments, team leads, and task completion metrics</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-indigo text-white rounded-pill px-3 shadow-sm btn-sm fw-semibold" (click)="showCreateModal = true">
+        + Create New Team
+      </button>
+      <a routerLink="/owner" class="btn btn-outline-secondary rounded-pill px-3 btn-sm">
+        ← Back to Owner Dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- CREATE TEAM MODAL / FORM INLINE -->
+  <div *ngIf="showCreateModal" class="card bg-surface border border-indigo rounded-4 p-4 mb-4 shadow-lg">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold text-main mb-0">Create New Team</h5>
+      <button class="btn-close" (click)="showCreateModal = false"></button>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label text-secondary fs-xs fw-semibold">Team / Department Name</label>
+        <input type="text" class="form-control rounded-3" autocomplete="off" [(ngModel)]="newTeamName">
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label text-secondary fs-xs fw-semibold">Assign Team Lead / Manager</label>
+        <select class="form-select rounded-3" [(ngModel)]="newTeamLeadId">
+          <option [ngValue]="null">Select Team Lead (Optional)</option>
+          <option *ngFor="let u of users" [value]="u.id">{{ u.name }} ({{ u.designation || u.email }})</option>
+        </select>
+      </div>
+
+      <div class="col-md-12">
+        <label class="form-label text-secondary fs-xs fw-semibold">Team Description</label>
+        <textarea rows="2" class="form-control rounded-3" autocomplete="off" [(ngModel)]="newTeamDescription"></textarea>
+      </div>
+
+      <div class="col-md-12 d-flex gap-2 justify-content-end mt-3">
+        <button class="btn btn-outline-secondary rounded-3 px-3 py-2 btn-sm" (click)="showCreateModal = false">Cancel</button>
+        <button class="btn btn-indigo text-white rounded-3 px-4 py-2 btn-sm fw-semibold shadow-sm" (click)="createTeam()" [disabled]="creatingTeam">
+          {{ creatingTeam ? 'Creating Team...' : 'Create Team' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING SPINNER -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-indigo" role="status">
+      <span class="visually-hidden">Loading teams...</span>
+    </div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div *ngIf="!loading && teams.length === 0" class="empty-state text-center py-5 bg-surface border rounded-4 shadow-sm">
+    <div class="empty-icon mb-3 fs-1">👥</div>
+    <h5 class="fw-bold text-main">No Teams Configured</h5>
+    <p class="text-secondary small mb-3">Group your employees into teams to track department-level progress and metrics.</p>
+    <button class="btn btn-indigo text-white rounded-pill px-4 py-2 fw-semibold" (click)="showCreateModal = true">
+      + Create First Team
+    </button>
+  </div>
+
+  <!-- TEAMS CARDS GRID -->
+  <div *ngIf="!loading && teams.length > 0" class="row g-4">
+    <div *ngFor="let t of teams" class="col-md-6 col-lg-4">
+      <div class="card bg-surface border rounded-4 p-4 shadow-sm h-100 d-flex flex-column">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h5 class="fw-bold text-main mb-0">{{ t.name }}</h5>
+          <span class="badge bg-indigo-subtle text-indigo rounded-pill px-2.5 py-1 fs-xs">{{ t.memberCount }} Members</span>
+        </div>
+
+        <p class="text-secondary small mb-3 text-clamp-2">{{ t.description || 'No description provided.' }}</p>
+
+        <div class="mb-3 p-2.5 bg-body-tertiary rounded-3 border">
+          <small class="text-secondary fs-xs d-block mb-1">Team Manager / Lead</small>
+          <strong class="text-main fs-xs">👤 {{ t.leadName }}</strong>
+        </div>
+
+        <div class="mt-auto">
+          <div class="d-flex justify-content-between align-items-center mb-1 fs-xs">
+            <span class="text-secondary">Task Completion Progress</span>
+            <strong class="text-indigo">{{ t.completionRate }}%</strong>
+          </div>
+
+          <div class="progress mb-3" style="height: 8px;">
+            <div class="progress-bar bg-success" [style.width.%]="t.completionRate"></div>
+          </div>
+
+          <div class="d-flex justify-content-between text-secondary fs-xxs border-top pt-2">
+            <span>Completed: <strong class="text-success">{{ t.completedTasks }}</strong></span>
+            <span>Pending: <strong class="text-warning-emphasis">{{ t.pendingTasks }}</strong></span>
+            <span>Total: <strong class="text-main">{{ t.activeTasks }}</strong></span>
+          </div>
+
+          <div class="pt-3 border-top mt-3 text-end">
+            <button class="btn btn-sm btn-outline-danger rounded-2" (click)="deleteTeam(t.id!, t.name)">
+              Delete Team
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

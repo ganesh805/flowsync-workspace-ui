@@ -1,683 +1,431 @@
-<div class="d-flex">
-
-  <!-- SIDEBAR -->
-
-  <app-sidebar></app-sidebar>
-
-  <!-- MAIN CONTENT -->
-
-  <div
-    class="container-fluid min-vh-100 py-4"
-    style="margin-left: 260px;"
-    [ngClass]="{
-      'bg-dark text-white': darkMode,
-      'bg-light text-dark': !darkMode
-    }"
-  >
-
-    <!-- NAVBAR -->
-
-    <app-navbar></app-navbar>
-
-    <div class="container mt-4">
-
-      <!-- HEADER -->
-
-      <div
-        class="d-flex justify-content-between align-items-center mb-5"
-      >
-
-        <div>
-
-          <h2 class="fw-bold mb-1">
-
-            Welcome,
-            {{ nickname }}
-
-          </h2>
-
-          <p class="text-muted mb-0">
-
-            {{ companyName }}
-            Employee Workspace
-
-          </p>
-
-        </div>
-
-        <!-- RIGHT ACTIONS -->
-
-        <div class="d-flex align-items-center gap-3">
-
-          <!-- NOTIFICATIONS -->
-
-          <div id="notifications">
-
-  <button
-    class="btn btn-light position-relative"
-    (click)="showNotifications = !showNotifications"
-  >
-
-    🔔
-
-    @if(unreadCount > 0){
-
-      <span
-        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-      >
-
-        {{ unreadCount }}
-
+<div class="home-dashboard py-2">
+  <!-- ACTIVE APPROVED RESIGNATION NOTICE PERIOD COUNTDOWN BANNER -->
+  <div *ngIf="approvedResignation" class="alert alert-warning border-2 rounded-4 shadow-sm mb-4 p-3 d-flex flex-wrap align-items-center justify-content-between gap-3">
+    <div class="d-flex align-items-center gap-3">
+      <div class="bg-warning text-dark rounded-circle p-2.5 d-flex align-items-center justify-content-center fw-bold fs-4" style="width: 48px; height: 48px;">
+        ⏳
+      </div>
+      <div>
+        <h6 class="fw-bold text-dark mb-0">Resignation Approved & Active Notice Period Policy</h6>
+        <small class="text-secondary">
+          Final Approved Last Working Day: <strong>{{ (approvedResignation.approvedLastDay || approvedResignation.proposedLastDay) | date:'fullDate' }}</strong>
+        </small>
+      </div>
+    </div>
+    <div>
+      <span class="badge bg-danger fs-6 px-3 py-2 rounded-pill font-monospace shadow-2xs">
+        {{ remainingWorkingDays }} Days Remaining Left
       </span>
-
-    }
-
-  </button>
-
-  @if(showNotifications){
-
-    <div class="notification-dropdown">
-
-      <div class="notification-title">
-
-        Notifications
-
-      </div>
-
-      @if(notifications.length === 0){
-
-        <div class="notification-empty">
-
-          No Notifications
-
-        </div>
-
-      }
-
-      @for(notification of notifications; track notification.id){
-
-        <div class="notification-item">
-
-          <small>
-
-            {{ notification.message }}
-
-          </small>
-
-          <small>
-
-            {{ notification.createdAt | date:'short' }}
-
-          </small>
-
-        </div>
-
-      }
-
     </div>
+  </div>
 
-  }
+  <!-- PAGE HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div>
+      <h2 class="fw-bold mb-1 tracking-tight text-main">Welcome, {{ nickname }} 👋</h2>
+      <p class="text-secondary mb-0 small">
+        <span class="badge bg-indigo-subtle text-indigo me-2">{{ companyName || 'Workspace' }}</span> Employee Dashboard
+      </p>
+    </div>
+  </div>
 
-</div>
-
-          <!-- THEME -->
-
-          <button
-            class="btn btn-secondary"
-            (click)="toggleDarkMode()"
-          >
-
-            Theme
-
-          </button>
-
-          <!-- LOGOUT -->
-
-          <button
-            class="btn btn-danger"
-            (click)="logout()"
-          >
-
-            Logout
-
-          </button>
-
-        </div>
-
-      </div>
-
-      <!-- GRID -->
-
-      <div class="row">
-
-        <!-- LEFT SIDE -->
-
-        <div class="col-lg-8">
-
-          <!-- CHANGE PASSWORD -->
-
-          <div class="card modern-card p-4 mb-4">
-
-            <h4 class="fw-bold mb-4">
-
-              Change Password
-
-            </h4>
-
-            <div class="row">
-
-              <div class="col-md-5 mb-3">
-
-                <input
-                  type="password"
-                  class="form-control"
-                  placeholder="Current Password"
-                  [(ngModel)]="currentPassword"
-                >
-
-              </div>
-
-              <div class="col-md-5 mb-3">
-
-                <input
-                  type="password"
-                  class="form-control"
-                  placeholder="New Password"
-                  [(ngModel)]="newPassword"
-                >
-
-              </div>
-
-              <div class="col-md-2 mb-3">
-
-                <button
-                  class="btn btn-dark w-100"
-                  (click)="changePassword()"
-                >
-
-                  Update
-
-                </button>
-
-              </div>
-
-            </div>
-
+  <!-- MAIN DASHBOARD CONTENT -->
+  <div class="row g-4">
+    <!-- LEFT SECTION -->
+    <div class="col-lg-8">
+      <!-- STATS CARDS -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="card stat-card border-0 shadow-sm p-4 bg-gradient-blue text-white rounded-4">
+            <small class="text-white-50 text-uppercase fw-bold letter-spacing-1">Assigned Tasks</small>
+            <h2 class="fw-bold my-2 display-6">{{ totalTasks }}</h2>
+            <p class="mb-0 small text-white-50">Active workflow assignments</p>
           </div>
-
-          <!-- ANALYTICS -->
-
-          <div
-  id="analytics"
-  class="stats-grid mb-4"
->
-
-  <!-- ASSIGNED -->
-
-  <div class="stats-card blue">
-
-    <div class="stats-left">
-
-      <small class="stats-label">
-
-        Assigned Tasks
-
-      </small>
-
-      <h2 class="stats-number">
-
-        {{ totalTasks }}
-
-      </h2>
-
-      <p class="stats-desc">
-
-        Active workflow tasks
-
-      </p>
-
-    </div>
-
-    <div class="stats-icon-box">
-
-      📋
-
-    </div>
-
-  </div>
-
-  <!-- COMPLETED -->
-
-  <div class="stats-card green">
-
-    <div class="stats-left">
-
-      <small class="stats-label">
-
-        Completed Tasks
-
-      </small>
-
-      <h2 class="stats-number">
-
-        {{ completedTasks }}
-
-      </h2>
-
-      <p class="stats-desc">
-
-        Successfully finished
-
-      </p>
-
-    </div>
-
-    <div class="stats-icon-box">
-
-      ✅
-
-    </div>
-
-  </div>
-
-  <!-- PENDING -->
-
-  <div class="stats-card red">
-
-    <div class="stats-left">
-
-      <small class="stats-label">
-
-        Pending Tasks
-
-      </small>
-
-      <h2 class="stats-number">
-
-        {{ pendingTasks }}
-
-      </h2>
-
-      <p class="stats-desc">
-
-        Waiting for completion
-
-      </p>
-
-    </div>
-
-    <div class="stats-icon-box">
-
-      ⏳
-
-    </div>
-
-  </div>
-
-</div>
-
-          <!-- TASKS -->
-
-          <div
-            id="tasks"
-            class="card modern-card p-4 mb-5"
-          >
-
-            <h3 class="fw-bold mb-4">
-
-              Assigned Tasks
-
-            </h3>
-
-            <div class="mb-3">
-
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Search Tasks"
-                [(ngModel)]="searchText"
-              >
-
-            </div>
-
-            <div class="mb-4">
-
-              <select
-                class="form-select"
-                [(ngModel)]="selectedFilter"
-              >
-
-                <option value="ALL">
-                  All Tasks
-                </option>
-
-                <option value="PENDING">
-                  Pending
-                </option>
-
-                <option value="IN_PROGRESS">
-                  In Progress
-                </option>
-
-                <option value="COMPLETED">
-                  Completed
-                </option>
-
-              </select>
-
-            </div>
-
-            <div class="row">
-
-              @for(task of paginatedTasks; track task.id) {
-
-                <div class="col-md-6 mb-4">
-
-                  <div
-                    class="modern-task-card"
-                    [ngClass]="{
-                      'priority-high': task.priority === 'HIGH',
-                      'priority-medium': task.priority === 'MEDIUM',
-                      'priority-low': task.priority === 'LOW'
-                    }"
-                  >
-
-                    <div
-                      class="d-flex justify-content-between align-items-start mb-3"
-                    >
-
-                      <div>
-
-                        <h4 class="task-title">
-
-                          {{ task.title }}
-
-                        </h4>
-                        <button
-                          class="btn btn-dark btn-sm w-100 mb-2"
-                          [routerLink]="['/task', task.id]"
+        </div>
+
+        <div class="col-md-4">
+          <div class="card stat-card border-0 shadow-sm p-4 bg-gradient-green text-white rounded-4">
+            <small class="text-white-50 text-uppercase fw-bold letter-spacing-1">Completed</small>
+            <h2 class="fw-bold my-2 display-6">{{ completedTasks }}</h2>
+            <p class="mb-0 small text-white-50">Successfully verified</p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card stat-card border-0 shadow-sm p-4 bg-gradient-amber text-white rounded-4">
+            <small class="text-white-50 text-uppercase fw-bold letter-spacing-1">Pending</small>
+            <h2 class="fw-bold my-2 display-6">{{ pendingTasks }}</h2>
+            <p class="mb-0 small text-white-50">In progress / awaiting approval</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ASSIGNED TASKS SECTION -->
+      <div id="tasks" class="card border rounded-4 p-4 mb-4 bg-surface shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="fw-bold mb-0 text-main">Assigned Tasks</h4>
+          <span class="badge bg-secondary-subtle text-secondary rounded-pill">{{ filteredTasks.length }} tasks</span>
+        </div>
+
+        <!-- CONTROLS -->
+        <div class="row g-2 mb-4">
+          <div class="col-md-8">
+            <input
+              type="text"
+              class="form-control rounded-3"
+              autocomplete="off"
+              [(ngModel)]="searchText"
+            >
+          </div>
+          <div class="col-md-4">
+            <select class="form-select rounded-3" [(ngModel)]="selectedFilter">
+              <option value="ALL">All Statuses</option>
+              <option value="PENDING">Pending</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="COMPLETION_REQUESTED">Completion Requested</option>
+              <option value="COMPLETED">Completed</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- LOADING SPINNER -->
+        <div *ngIf="loadingTasks" class="text-center py-5">
+          <div class="spinner-border text-indigo" role="status">
+            <span class="visually-hidden">Loading tasks...</span>
+          </div>
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div *ngIf="!loadingTasks && paginatedTasks.length === 0" class="empty-state text-center py-5">
+          <div class="empty-icon mb-3 fs-1">📋</div>
+          <h6 class="fw-bold text-secondary">No Tasks Found</h6>
+          <p class="text-secondary small mb-0">You currently have no tasks matching the selected filters.</p>
+        </div>
+
+        <!-- TASK GRID -->
+        <div *ngIf="!loadingTasks && paginatedTasks.length > 0" class="row g-3">
+          <div *ngFor="let task of paginatedTasks" class="col-md-6">
+            <div
+              class="task-card card h-100 p-3 border rounded-3 position-relative bg-body-tertiary shadow-2xs"
+              [ngClass]="{
+                'border-start border-4 border-danger': task.priority === 'HIGH',
+                'border-start border-4 border-warning': task.priority === 'MEDIUM',
+                'border-start border-4 border-info': task.priority === 'LOW'
+              }"
+            >
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="task-title fw-bold mb-0 text-truncate pe-2 text-main">{{ task.title }}</h5>
+                <span
+                  class="badge rounded-pill text-uppercase fs-xs"
+                  [ngClass]="{
+                    'bg-danger-subtle text-danger': task.priority === 'HIGH',
+                    'bg-warning-subtle text-warning-emphasis': task.priority === 'MEDIUM',
+                    'bg-info-subtle text-info': task.priority === 'LOW'
+                  }"
                 >
-                          View Task
+                  {{ task.priority }}
+                </span>
+              </div>
 
-                        </button>
+              <p class="task-desc text-secondary small mb-3 text-clamp-2">
+                {{ task.description || 'No description provided.' }}
+              </p>
 
-                        <small class="text-muted">
+              <div class="mb-3">
+                <label class="form-label text-secondary fs-xs fw-semibold mb-1">Update Status</label>
+                <select
+                  class="form-select form-select-sm rounded-2"
+                  [(ngModel)]="task.status"
+                  (change)="updateStatus(task.id, $any($event.target).value)"
+                >
+                  <option value="PENDING">Pending</option>
+                  <option value="IN_PROGRESS">In Progress</option>
+                  <option value="COMPLETION_REQUESTED">Request Approval</option>
+                </select>
+              </div>
 
-                          Due: {{ task.dueDate }}
-
-                        </small>
-
-                      </div>
-                      
-
-                      <span
-                        class="priority-badge"
-                        [ngClass]="{
-                          'badge-high': task.priority === 'HIGH',
-                          'badge-medium': task.priority === 'MEDIUM',
-                          'badge-low': task.priority === 'LOW'
-                        }"
-                      >
-
-                        {{ task.priority }}
-
-                      </span>
-
-                    </div>
-
-                    <p
-  *ngIf="task.description"
-  class="task-description"
->
-  {{ task.description }}
-</p>
-
-                    <!-- STATUS -->
-
-<div class="mb-3 mt-3">
-
-  <label class="fw-semibold mb-2 d-block">
-
-    Task Status
-
-  </label>
-
-  <select
-  class="form-select modern-select"
-
-  [(ngModel)]="task.status"
-
-  (change)="updateStatus(task.id, $any($event.target).value)"
->
-
-  <option value="PENDING">
-
-    Pending
-
-  </option>
-
-  <option value="IN_PROGRESS">
-
-    In Progress
-
-  </option>
-
-  <option value="COMPLETION_REQUESTED">
-
-    Waiting For Approval
-
-  </option>
-
-</select>
-
-</div>
-
-<!-- REQUEST APPROVAL -->
-
-<div class="mb-3">
-
-  <button
-    *ngIf="task.status === 'IN_PROGRESS'"
-
-    class="btn btn-success btn-sm"
-
-    (click)="requestCompletion(task.id)"
-  >
-
-    Request Completion Approval
-
-  </button>
-
-</div>
-
-<!-- COMMENTS -->
-
-<div
-  *ngIf="task.comments?.length > 0"
-  class="comments-box mb-3"
->
-
-  <div
-    *ngFor="let comment of task.comments"
-    class="comment-item"
-  >
-
-    <strong>
-      {{ comment.user?.name }}
-    </strong>
-
-    <p class="mb-1 comment-message">
-      {{ comment.message }}
-    </p>
-
-  </div>
-
-</div>
-
-
-                  </div>
-
+              <div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top">
+                <small class="text-secondary fs-xs">Due: {{ task.dueDate || 'N/A' }}</small>
+                <div>
+                  <button (click)="openTaskComments(task)" class="btn btn-sm btn-outline-indigo rounded-pill px-3 me-1">
+                    💬 Comments
+                  </button>
+                  <a [routerLink]="['/task', task.id]" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                    Details →
+                  </a>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-              }
+      <!-- CHANGE PASSWORD CARD -->
+      <div class="card border rounded-4 p-4 mb-4 bg-surface shadow-sm">
+        <h5 class="fw-bold mb-3 text-main">Security & Password</h5>
+        <div class="row g-3">
+          <div class="col-md-5">
+            <label class="form-label text-secondary fs-xs fw-semibold">Current Password</label>
+            <input
+              type="password"
+              class="form-control rounded-3"
+              autocomplete="current-password"
+              [(ngModel)]="currentPassword"
+            >
+          </div>
+          <div class="col-md-5">
+            <label class="form-label text-secondary fs-xs fw-semibold">New Password</label>
+            <input
+              type="password"
+              class="form-control rounded-3"
+              autocomplete="new-password"
+              [(ngModel)]="newPassword"
+            >
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-dark w-100 rounded-3 py-2 fw-semibold" (click)="changePassword()">
+              Update
+            </button>
+          </div>
+        </div>
+      </div>
 
+      <!-- RESIGNATION REQUEST CARD -->
+      <div class="card border rounded-4 p-4 bg-surface shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0 text-main">Submit Resignation Request</h5>
+          <span class="badge bg-secondary-subtle text-secondary rounded-pill">HR & Team Lead Direct Request</span>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-8">
+            <label class="form-label text-secondary fs-xs fw-semibold">Primary Reason for Resignation</label>
+            <input type="text" class="form-control rounded-3" autocomplete="off" [(ngModel)]="resignationReason">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label text-secondary fs-xs fw-semibold">Proposed Last Working Day</label>
+            <input type="date" class="form-control rounded-3" [min]="minNoticeDate" [(ngModel)]="proposedLastDay">
+            <small class="text-secondary d-block fs-xxs mt-1">Company Notice Policy: Minimum 90 days required (Earliest date: {{ minNoticeDate }})</small>
+          </div>
+          <div class="col-md-12">
+            <label class="form-label text-secondary fs-xs fw-semibold">Resignation Letter Details (Optional)</label>
+            <textarea rows="3" class="form-control rounded-3" autocomplete="off" [(ngModel)]="resignationLetter"></textarea>
+          </div>
+          <div class="col-md-12 text-end">
+            <button class="btn btn-danger text-white rounded-3 px-4 py-2 fw-semibold shadow-sm" (click)="submitResignation()" [disabled]="submittingResignation">
+              {{ submittingResignation ? 'Submitting...' : 'Submit Resignation Letter' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- MY SUBMITTED RESIGNATIONS TRACKER -->
+        <h6 class="fw-bold text-main mb-2">My Resignation Request History ({{ myResignations.length }})</h6>
+        <div *ngIf="myResignations.length === 0" class="text-center py-3 text-secondary small bg-body-tertiary rounded-3 border">
+          No resignation requests submitted.
+        </div>
+        <div *ngIf="myResignations.length > 0" class="row g-2">
+          <div *ngFor="let r of myResignations" class="col-md-12">
+            <div class="p-3 bg-body-tertiary rounded-3 border">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="fw-bold text-main fs-xs">Submitted on {{ r.createdAt | date:'mediumDate' }}</span>
+                <span
+                  class="badge rounded-pill text-uppercase fs-xs"
+                  [ngClass]="{
+                    'bg-warning-subtle text-warning-emphasis': r.status === 'PENDING',
+                    'bg-success-subtle text-success': r.status === 'APPROVED',
+                    'bg-danger-subtle text-danger': r.status === 'REJECTED'
+                  }"
+                >
+                  {{ r.status }}
+                </span>
+              </div>
+              <p class="mb-1 text-main fs-xs"><strong>Reason:</strong> {{ r.reason }}</p>
+              <small *ngIf="r.proposedLastDay" class="d-block text-secondary fs-xs mb-1">Proposed Last Day: {{ r.proposedLastDay }}</small>
+              <small *ngIf="r.approvedLastDay" class="d-block text-success fw-bold fs-xs mb-1">Final Approved Working Day: {{ r.approvedLastDay }}</small>
+              <small *ngIf="r.adminFeedback" class="d-block text-indigo fs-xs">Admin Feedback: "{{ r.adminFeedback }}"</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT SECTION: SLACK-STYLE LIVE WORKSPACE CHAT -->
+    <div id="discussion" class="col-lg-4">
+      <div class="card border rounded-4 p-3 bg-surface shadow-sm chat-wrapper h-100 d-flex flex-column">
+        <div class="chat-header pb-2 mb-2 border-bottom">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="d-flex align-items-center gap-2">
+              <div class="chat-avatar bg-indigo text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 34px; height: 34px;">
+                ⚡
+              </div>
+              <div>
+                <h6 class="fw-bold mb-0 text-main">Slack Workspace</h6>
+                <small class="text-success fw-medium fs-xxs">● Live Synchronized</small>
+              </div>
             </div>
 
+            <div class="d-flex align-items-center gap-1.5">
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-xs btn-outline-indigo" [class.active]="activeChatChannel === 'TEAM'" (click)="switchChatChannel('TEAM')">
+                  # team
+                </button>
+                <button class="btn btn-xs btn-outline-indigo" [class.active]="activeChatChannel === 'DIRECT'" (click)="switchChatChannel('DIRECT')">
+                  💬 1-on-1 DM
+                </button>
+              </div>
+              <a routerLink="/chat" class="btn btn-xs btn-indigo text-white rounded-pill px-2 py-1 text-decoration-none fw-semibold shadow-2xs">
+                Full Chat ⚡
+              </a>
+            </div>
           </div>
 
-        </div>
-        
-
-        <!-- RIGHT SIDE -->
-
-        <div class="col-lg-4">
-
-          <!-- DISCUSSION -->
-
-<div class="modern-card chat-panel">
-
-  <h2 class="section-title mb-4">
-
-    Discuss Here
-
-  </h2>
-
-  <!-- CHAT AREA -->
-
-  <div class="chat-messages">
-
-    @for(msg of messages; track msg.id) {
-
-      <div
-        class="chat-bubble"
-        [ngClass]="{
-          'my-message':
-          msg.sender?.name === nickname,
-
-          'other-message':
-          msg.sender?.name !== nickname
-        }"
-      >
-
-        <div class="chat-user">
-
-          {{ msg.sender?.name }}
-
+          <!-- SLACK DIRECT MESSAGES SEARCH & DIRECT COLleague LIST -->
+          <div *ngIf="activeChatChannel === 'DIRECT'" class="mt-2">
+            <input
+              type="text"
+              class="form-control form-control-sm rounded-3 mb-2 fs-xs"
+              placeholder="🔍 Search colleague by name or role..."
+              [(ngModel)]="chatSearchQuery"
+              (input)="filterColleagues()"
+            >
+            <div class="d-flex gap-1 overflow-x-auto pb-1" style="max-height: 42px;">
+              <button
+                *ngFor="let c of filteredColleagues"
+                class="btn btn-xs rounded-pill text-nowrap px-2.5 py-1 d-flex align-items-center gap-1 transition-all"
+                [ngClass]="selectedDirectUser?.id === c.id ? 'btn-indigo text-white' : 'btn-light border text-main'"
+                (click)="selectDirectUser(c)"
+              >
+                <span>👤</span> {{ c.name }}
+              </button>
+            </div>
+            <div *ngIf="selectedDirectUser" class="mt-1 fs-xxs text-indigo fw-bold">
+              Active DM Thread with {{ selectedDirectUser.name }} ({{ selectedDirectUser.designation || 'Team Member' }})
+            </div>
+          </div>
         </div>
 
-        <div class="chat-text">
+        <!-- MESSAGES CONTAINER -->
+        <div class="chat-messages flex-grow-1 overflow-auto pe-1 mb-3" style="max-height: 480px;">
+          <div *ngIf="messages.length === 0" class="text-center text-secondary py-5 small">
+            No chat messages yet. Type <strong>@name</strong> to mention colleagues.
+          </div>
 
-          {{ msg.message }}
+          <div
+            *ngFor="let m of messages"
+            class="chat-bubble-row mb-3 d-flex flex-column"
+            [ngClass]="{
+              'align-items-end': m.sender?.name === nickname,
+              'align-items-start': m.sender?.name !== nickname
+            }"
+          >
+            <div
+              class="chat-bubble p-3 rounded-4 shadow-2xs position-relative"
+              [ngClass]="{
+                'bubble-outgoing bg-whatsapp-green text-dark rounded-bottom-end-0': m.sender?.name === nickname,
+                'bubble-incoming bg-light-surface text-main border rounded-bottom-start-0': m.sender?.name !== nickname
+              }"
+              style="max-width: 85%; min-width: 140px;"
+            >
+              <div class="d-flex justify-content-between align-items-center gap-3 mb-1">
+                <span class="fw-bold fs-xs" [ngClass]="m.sender?.name === nickname ? 'text-emerald-800' : 'text-indigo'">
+                  {{ m.sender?.name || 'User' }}
+                </span>
+                <span class="fs-xxs opacity-75 text-secondary">{{ m.createdAt | date:'shortTime' }}</span>
+              </div>
 
+              <div *ngIf="m.taggedUser" class="badge bg-warning-subtle text-warning-emphasis mb-1">
+                @{{ m.taggedUser }}
+              </div>
+
+              <p class="mb-0 text-break text-sm">{{ m.message }}</p>
+            </div>
+          </div>
         </div>
 
-        <div class="chat-time">
+        <!-- INPUT AREA WITH FLOATING TAG SUGGESTIONS -->
+        <div class="chat-input-box position-relative border-top pt-3 mt-auto">
+          <!-- FLOATING TAG SUGGESTIONS POPOVER -->
+          <div *ngIf="showTagSuggestions" class="tag-suggestions-popover position-absolute bottom-100 start-0 w-100 bg-surface border rounded-3 shadow-lg p-2 z-3 mb-2" style="max-height: 200px; overflow-y: auto;">
+            <small class="text-secondary fw-semibold px-2 d-block mb-1">Mention Employee (@):</small>
+            <div
+              *ngFor="let u of filteredTagUsers"
+              class="tag-user-item p-2 rounded-2 hover-bg cursor-pointer d-flex align-items-center gap-2"
+              (click)="selectTagUser(u)"
+            >
+              <div class="avatar-sm bg-indigo-subtle text-indigo rounded-circle px-2 py-1 fw-bold fs-xs">
+                {{ u.name.charAt(0) }}
+              </div>
+              <div>
+                <strong class="d-block fs-xs text-main">{{ u.name }}</strong>
+                <small class="text-secondary fs-xxs">{{ u.designation || u.email }}</small>
+              </div>
+            </div>
+          </div>
 
-          {{ msg.createdAt | date:'shortTime' }}
-
+          <textarea
+            rows="2"
+            class="form-control rounded-3 mb-2 chat-input-textarea"
+            autocomplete="off"
+            [(ngModel)]="newMessage"
+            (input)="onChatInput($event)"
+            (keydown.enter)="$event.preventDefault(); sendMessage()"
+          ></textarea>
+          <button class="btn btn-indigo text-white w-100 rounded-3 py-2 fw-semibold shadow-sm" (click)="sendMessage()">
+            Send Message
+          </button>
         </div>
-
       </div>
-
-    }
-
-  </div>
-
-  <!-- INPUT -->
-
-  <div class="chat-input-area">
-
-    <textarea
-  class="form-control modern-chat-input"
-  rows="3"
-  placeholder="Type Message..."
-  [(ngModel)]="newMessage"
-></textarea>
-
-    <button
-      class="send-btn"
-      (click)="sendMessage()"
-    >
-
-      Send
-
-    </button>
-
-  </div>
-
-</div>
-
-        </div>
-
-      </div>
-
     </div>
-
   </div>
 
-</div>
-<div
-  class="modal fade"
-  id="taskModal"
-  tabindex="-1"
->
-
-  <div class="modal-dialog modal-lg">
-
-    <div class="modal-content">
-
-      <div class="modal-header">
-
-        <h5 class="modal-title">
-
-          {{ selectedTask?.title }}
-
-        </h5>
-
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
-
+  <!-- TASK COMMENTS & DISCUSSION SLIDE-OVER MODAL -->
+  <div *ngIf="selectedTaskForComments" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center z-3" style="background-color: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px);">
+    <div class="card border-0 rounded-4 shadow-lg overflow-hidden w-100 max-w-2xl mx-3 bg-surface animate__animated animate__fadeInUp">
+      <div class="card-header bg-indigo text-white p-3.5 d-flex justify-content-between align-items-center border-0">
+        <div class="d-flex align-items-center gap-2">
+          <span class="fs-5">📋</span>
+          <div>
+            <h6 class="fw-bold mb-0 text-white">{{ selectedTaskForComments.title }}</h6>
+            <small class="text-white-50 fs-xs">Priority: {{ selectedTaskForComments.priority }} | Due: {{ selectedTaskForComments.dueDate || 'N/A' }}</small>
+          </div>
+        </div>
+        <button class="btn-close btn-close-white" (click)="closeTaskComments()" aria-label="Close"></button>
       </div>
 
-      <div class="modal-body">
+      <div class="card-body p-4" style="max-height: 400px; overflow-y: auto;">
+        <div *ngIf="loadingComments" class="text-center py-4">
+          <div class="spinner-border text-indigo" role="status">
+            <span class="visually-hidden">Loading comments...</span>
+          </div>
+        </div>
 
-        <p>
+        <div *ngIf="!loadingComments && taskComments.length === 0" class="text-center py-4 text-secondary fs-xs">
+          💬 No comments posted on this task yet. Start the conversation below!
+        </div>
 
-          {{ selectedTask?.description }}
-
-        </p>
-
-        <p>
-
-          <strong>Status:</strong>
-
-          {{ selectedTask?.status }}
-
-        </p>
-
-        <p>
-
-          <strong>Priority:</strong>
-
-          {{ selectedTask?.priority }}
-
-        </p>
-
-        <p>
-
-          <strong>Due Date:</strong>
-
-          {{ selectedTask?.dueDate }}
-
-        </p>
-
+        <div *ngIf="!loadingComments && taskComments.length > 0" class="d-flex flex-column gap-3">
+          <div *ngFor="let c of taskComments" class="p-3 rounded-3 border bg-body-tertiary">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <strong class="text-main fs-xs">👤 {{ c.user?.name || 'User' }}</strong>
+              <small class="text-secondary fs-xxs">{{ c.createdAt | date:'short' }}</small>
+            </div>
+            <p class="mb-0 fs-xs text-main text-break">{{ c.message }}</p>
+          </div>
+        </div>
       </div>
 
+      <div class="card-footer bg-body-tertiary p-3 border-top d-flex gap-2">
+        <input
+          type="text"
+          class="form-control rounded-3"
+          placeholder="Add a comment or update to this task..."
+          [(ngModel)]="newCommentText"
+          (keyup.enter)="submitTaskComment()"
+        >
+        <button class="btn btn-indigo text-white px-4 rounded-3 fw-semibold flex-shrink-0" (click)="submitTaskComment()" [disabled]="submittingComment">
+          Post
+        </button>
+      </div>
     </div>
-
   </div>
-
 </div>

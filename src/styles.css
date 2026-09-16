@@ -1,4 +1,81 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
 body {
-  background-color: rgb(220, 235, 243);
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+app-sidebar {
+  display: block !important;
+  width: 260px !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+}
+
+/* GLOBAL INDIGO BUTTON & COLOR UTILITIES */
+.btn-indigo {
+  background-color: #6366f1 !important;
+  border-color: #6366f1 !important;
+  color: #ffffff !important;
+}
+
+.btn-indigo:hover,
+.btn-indigo:focus,
+.btn-indigo:active {
+  background-color: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35) !important;
+}
+
+.text-indigo {
+  color: #4f46e5 !important;
+}
+
+.bg-indigo {
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+.bg-indigo-subtle {
+  background-color: #e0e7ff !important;
+  color: #4f46e5 !important;
+}
+
+.bg-surface {
+  background-color: #ffffff !important;
+}
+
+.text-main {
+  color: #0f172a !important;
+}
+
+.text-secondary {
+  color: #64748b !important;
+}
+
+.fs-xs {
+  font-size: 0.75rem !important;
+}
+
+.fs-xxs {
+  font-size: 0.65rem !important;
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+/* DISABLE AUTOCOMPLETE POPUP HIGHLIGHTS GLOBALLY */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  transition: background-color 5000s ease-in-out 0s;
 }

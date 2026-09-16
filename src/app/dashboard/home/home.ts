@@ -1,25 +1,18 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy
-} from '@angular/core';
-
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { FormsModule } from '@angular/forms';
-
-import { Router } from '@angular/router';
-
-import { HttpClient } from '@angular/common/http';
+import { Router, RouterModule } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { TaskService } from '../../services/task.service';
-
-import { Sidebar } from '../../layout/sidebar/sidebar';
-
-import { Navbar } from '../../layout/navbar/navbar';
-import { RouterModule } from '@angular/router';
-
- 
+import { AuthService } from '../../services/auth.service';
+import { AuthStateService } from '../../services/auth-state.service';
+import { NotificationStateService } from '../../services/notification-state.service';
+import { DiscussionService, DiscussionMessage } from '../../services/discussion.service';
+import { AdminDataService } from '../../services/admin-data.service';
+import { ToastService } from '../../services/toast.service';
+import { ResignationService, ResignationItem } from '../../services/resignation.service';
 
 import {
   Chart,
@@ -31,12 +24,7 @@ import {
   ChartType
 } from 'chart.js';
 
-Chart.register(
-  PieController,
-  ArcElement,
-  Tooltip,
-  Legend
-);
+Chart.register(PieController, ArcElement, Tooltip, Legend);
 
 @Component({
   selector: 'app-home',
@@ -44,860 +32,439 @@ Chart.register(
   imports: [
     CommonModule,
     FormsModule,
-    Sidebar,
-    Navbar,
     RouterModule
   ],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
-export class Home
-implements OnInit, OnDestroy {
+export class Home implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
 
   tasks: any[] = [];
+  messages: DiscussionMessage[] = [];
+  users: any[] = [];
+  myResignations: ResignationItem[] = [];
 
-  notifications: any[] = [];
-
-  comments: {
-    [key: number]: any[]
-  } = {};
-
-  commentInputs: {
-    [key: number]: string
-  } = {};
+  // Resignation Form state
+  resignationReason = '';
+  resignationLetter = '';
+  proposedLastDay = '';
+  submittingResignation = false;
 
   title = '';
-
   description = '';
-
   dueDate = '';
-
   priority = 'HIGH';
-
   status = 'PENDING';
 
   searchText = '';
-
   selectedFilter = 'ALL';
 
   currentPage = 1;
-
   itemsPerPage = 6;
-
   darkMode = false;
 
   nickname = 'User';
+  companyName = '';
+  unreadCount = 0;
 
-  editingTaskId:
-    number | null = null;
+  get minNoticeDate(): string {
+    const d = new Date();
+    d.setDate(d.getDate() + 90);
+    return d.toISOString().split('T')[0];
+  }
 
+  get approvedResignation(): ResignationItem | null {
+    return this.myResignations.find(r => r.status === 'APPROVED') || null;
+  }
+
+  get remainingWorkingDays(): number {
+    const res = this.approvedResignation;
+    if (!res) return 0;
+    const targetDateStr = res.approvedLastDay || res.proposedLastDay;
+    if (!targetDateStr) return 0;
+
+    const targetDate = new Date(targetDateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    targetDate.setHours(0, 0, 0, 0);
+
+    const diffTime = targetDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  }
+
+  editingTaskId: number | null = null;
   totalTasks = 0;
-
   completedTasks = 0;
-
   pendingTasks = 0;
 
-  unreadCount = 0;
   currentPassword = '';
-
   newPassword = '';
-
   showNotifications = false;
-
-  refreshInterval: any;
-  messages: any[] = [];
-
   newMessage = '';
-  companyName = '';
-  selectedTask: any = null;
 
-  public pieChartType: ChartType =
-    'pie';
+  // Tag suggestions state
+  showTagSuggestions = false;
+  filteredTagUsers: any[] = [];
+  taggedUser = '';
 
-  public pieChartData:
-    ChartConfiguration<'pie'>['data'] = {
+  loadingTasks = false;
+  loadingMessages = false;
 
-    labels: [
-      'Completed',
-      'Pending'
-    ],
-
-    datasets: [
-      {
-        data: [0, 0]
-      }
-    ]
+  public pieChartType: ChartType = 'pie';
+  public pieChartData: ChartConfiguration<'pie'>['data'] = {
+    labels: ['Completed', 'Pending'],
+    datasets: [{ data: [0, 0] }]
   };
-  
 
   constructor(
-
-    private taskService:
-      TaskService,
-
-    private router:
-      Router,
-
-    private http:
-      HttpClient
-
+    private taskService: TaskService,
+    private authService: AuthService,
+    public authState: AuthStateService,
+    public notificationState: NotificationStateService,
+    private discussionService: DiscussionService,
+    private adminData: AdminDataService,
+    private toastService: ToastService,
+    private resignationService: ResignationService,
+    private router: Router
   ) {}
 
+  colleagues: any[] = [];
+  filteredColleagues: any[] = [];
+  chatSearchQuery = '';
+
+  loadColleagues(): void {
+    this.discussionService.getColleagues()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (cols) => {
+          this.colleagues = cols || [];
+          this.filterColleagues();
+        },
+        error: () => {}
+      });
+  }
+
+  filterColleagues(): void {
+    const q = this.chatSearchQuery.toLowerCase().trim();
+    if (!q) {
+      this.filteredColleagues = [...this.colleagues];
+    } else {
+      this.filteredColleagues = this.colleagues.filter(c =>
+        c.name?.toLowerCase().includes(q) ||
+        c.designation?.toLowerCase().includes(q) ||
+        c.email?.toLowerCase().includes(q)
+      );
+    }
+  }
+
   ngOnInit(): void {
+    this.nickname = this.authState.getNickname() || 'User';
+    this.companyName = this.authState.getCompanyName() || '';
 
-    this.nickname =
-
-      localStorage
-        .getItem('nickname')
-      || 'User';
-
-    this.loadDashboardData();
-
-    // AUTO REFRESH
-
-    this.refreshInterval =
-
-      setInterval(() => {
-
-        this.loadDashboardData();
-
-      }, 5000);
-      this.loadMessages();
-
-setInterval(() => {
-
-  this.loadMessages();
-
-}, 3000);
-    this.companyName =
-
-  localStorage.getItem(
-    'companyName'
-  ) || '';
-
+    this.loadTasks();
+    this.loadUsers();
+    this.loadColleagues();
+    this.notificationState.loadNotifications().subscribe();
+    this.loadMessages();
+    timer(5000, 5000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.authState.isAuthenticated()) {
+          this.loadMessages(true);
+        }
+      });
   }
 
   ngOnDestroy(): void {
-
-    if(this.refreshInterval) {
-
-      clearInterval(
-        this.refreshInterval
-      );
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  // LOAD EVERYTHING
-
-  loadDashboardData() {
-
-    this.loadTasks();
-
-    this.loadNotifications();
+  loadUsers(): void {
+    this.adminData.getUsers()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => this.users = (res || []).filter((u: any) => u.role !== 'OWNER'),
+        error: () => {}
+      });
   }
 
-  // TASKS
+  loadTasks(silent = false): void {
+    if (!silent) this.loadingTasks = true;
 
-  loadTasks() {
+    this.taskService.getTasks()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          this.loadingTasks = false;
+          this.tasks = Array.isArray(response) ? response : [];
+          this.calculateStats();
+        },
+        error: (err) => {
+          this.loadingTasks = false;
+          if (!silent) this.toastService.error('Tasks', 'Failed to load assigned tasks.');
+        }
+      });
+  }
 
-  this.taskService
-    .getTasks()
-
-    .subscribe({
-
-      next: (response: any) => {
-
-        console.log('TASKS:', response);
-
-        this.tasks = Array.isArray(response)
-          ? response
-          : [];
-
-        this.tasks.forEach(
-          (task: any) => {
-
-            this.loadComments(task.id);
-          }
-        );
-
-        this.calculateStats();
-      },
-
-      error: (error: any) => {
-
-        console.error(
-          'LOAD TASK ERROR:',
-          error
-        );
-
-        this.tasks = [];
-
-        alert(
-          'Failed To Load Tasks'
-        );
-      }
-    });
-}
-
-  // ANALYTICS
-
-  calculateStats() {
-
-    this.totalTasks =
-      this.tasks.length;
-
-    this.completedTasks =
-
-      this.tasks.filter(
-
-        task =>
-          task.status
-          === 'COMPLETED'
-
-      ).length;
-
-    this.pendingTasks =
-
-      this.tasks.filter(
-
-        task =>
-          task.status
-          !== 'COMPLETED'
-
-      ).length;
+  calculateStats(): void {
+    this.totalTasks = this.tasks.length;
+    this.completedTasks = this.tasks.filter(t => t.status === 'COMPLETED').length;
+    this.pendingTasks = this.totalTasks - this.completedTasks;
 
     this.pieChartData = {
-
-      labels: [
-        'Completed',
-        'Pending'
-      ],
-
-      datasets: [
-        {
-          data: [
-            this.completedTasks,
-            this.pendingTasks
-          ]
-        }
-      ]
+      labels: ['Completed', 'Pending'],
+      datasets: [{ data: [this.completedTasks, this.pendingTasks] }]
     };
   }
 
-  // CREATE TASK
-
-  createTask() {
-
-    const task = {
-
-      title:
-        this.title,
-
-      description:
-        this.description,
-
-      dueDate:
-        this.dueDate,
-
-      priority:
-        this.priority,
-
-      status:
-        this.status
-    };
-
-    this.taskService
-      .createTask(task)
+  updateStatus(taskId: number, status: string): void {
+    this.taskService.updateTaskStatus(taskId, status)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
-
         next: () => {
-
-          alert(
-            'Task Created'
-          );
-
-          this.clearForm();
-
-          this.loadTasks();
+          this.toastService.success('Status Updated', `Task status changed to ${status.replace('_', ' ')}.`);
+          this.loadTasks(true);
         },
-
-        error: (error: any) => {
-
-          console.log(error);
-
-          alert(
-            'Task Creation Failed'
-          );
+        error: (err) => {
+          const msg = err?.error?.message || 'Status update failed.';
+          this.toastService.error('Update Error', msg);
         }
       });
   }
 
-  // EDIT TASK
-
-  editTask(task: any) {
-
-    this.editingTaskId =
-      task.id;
-
-    this.title =
-      task.title;
-
-    this.description =
-      task.description;
-
-    this.dueDate =
-      task.dueDate;
-
-    this.priority =
-      task.priority;
-
-    this.status =
-      task.status;
+  requestCompletion(taskId: number): void {
+    this.updateStatus(taskId, 'COMPLETION_REQUESTED');
   }
 
-  // UPDATE TASK
+  activeChatChannel: 'TEAM' | 'DIRECT' = 'TEAM';
+  selectedDirectUser: any = null;
 
-  updateTask() {
+  // Task Comments Modal State
+  selectedTaskForComments: any = null;
+  taskComments: any[] = [];
+  newCommentText = '';
+  loadingComments = false;
+  submittingComment = false;
 
-    const task = {
+  openTaskComments(task: any): void {
+    this.selectedTaskForComments = task;
+    this.newCommentText = '';
+    this.loadTaskComments(task.id);
+  }
 
-      title:
-        this.title,
+  closeTaskComments(): void {
+    this.selectedTaskForComments = null;
+    this.taskComments = [];
+  }
 
-      description:
-        this.description,
-
-      dueDate:
-        this.dueDate,
-
-      priority:
-        this.priority,
-
-      status:
-        this.status
-    };
-
-    this.taskService
-
-      .updateTask(
-
-        this.editingTaskId!,
-
-        task
-
-      )
-
+  loadTaskComments(taskId: number): void {
+    this.loadingComments = true;
+    this.taskService.getTaskComments(taskId)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
-
-        next: () => {
-
-          alert(
-            'Task Updated'
-          );
-
-          this.editingTaskId =
-            null;
-
-          this.clearForm();
-
-          this.loadTasks();
+        next: (comments) => {
+          this.loadingComments = false;
+          this.taskComments = comments || [];
         },
-
-        error: (error: any) => {
-
-          console.log(error);
-
-          alert(
-            'Update Failed'
-          );
+        error: () => {
+          this.loadingComments = false;
         }
       });
   }
 
-  // DELETE
+  submitTaskComment(): void {
+    if (!this.newCommentText.trim() || !this.selectedTaskForComments) return;
+    this.submittingComment = true;
+    const msg = this.newCommentText.trim();
+    this.newCommentText = '';
 
-  deleteTask(id: number) {
-
-    this.taskService
-      .deleteTask(id)
+    this.taskService.addTaskComment(this.selectedTaskForComments.id, msg)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
-
         next: () => {
-
-          alert(
-            'Task Deleted'
-          );
-
-          this.loadTasks();
+          this.submittingComment = false;
+          this.loadTaskComments(this.selectedTaskForComments.id);
+          this.toastService.success('Comment Posted', 'Comment added to task discussion thread.');
         },
-
-        error: (error: any) => {
-
-          console.log(error);
-
-          alert(
-            'Delete Failed'
-          );
+        error: () => {
+          this.submittingComment = false;
+          this.toastService.error('Error', 'Failed to post comment.');
         }
       });
   }
 
-  // UPDATE STATUS
+  selectDirectUser(user: any): void {
+    this.selectedDirectUser = user;
+    this.activeChatChannel = 'DIRECT';
+    this.loadMessages();
+  }
 
-  updateStatus(taskId: number, status: string) {
+  switchChatChannel(channel: 'TEAM' | 'DIRECT'): void {
+    this.activeChatChannel = channel;
+    this.loadMessages();
+  }
 
-  this.http.put(
+  loadMessages(silent = false): void {
+    if (!silent) this.loadingMessages = true;
 
-    `https://flowsync-workspace-api-2.onrender.com/api/tasks/${taskId}/status?status=${status}`,
-
-    {},
-
-    this.getHeaders()
-
-  ).subscribe({
-
-    next: () => {
-
-      alert('Status Updated');
-
-      this.loadTasks();
-    },
-
-    error: (err) => {
-
-      console.error(err);
-
-      alert('Status Update Failed');
+    if (this.activeChatChannel === 'DIRECT' && this.selectedDirectUser) {
+      this.discussionService.getDirectMessages(this.selectedDirectUser.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (msgs) => {
+            this.loadingMessages = false;
+            this.messages = msgs || [];
+          },
+          error: () => this.loadingMessages = false
+        });
+    } else {
+      this.discussionService.getMessages('TEAM')
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (msgs) => {
+            this.loadingMessages = false;
+            this.messages = msgs || [];
+          },
+          error: () => this.loadingMessages = false
+        });
     }
-  });
-}
-
-  // COMMENTS
-
-  loadComments(taskId: number) {
-
-    const token =
-      localStorage
-        .getItem('token');
-
-    this.http.get<any[]>(
-
-      `https://flowsync-workspace-api-2.onrender.com/api/comments/${taskId}`,
-
-      {
-        headers: {
-          Authorization:
-            `Bearer ${token}`
-        }
-      }
-
-    ).subscribe({
-
-      next: (response) => {
-
-        this.comments[taskId] =
-          response;
-      },
-
-      error: (error) => {
-
-        console.log(error);
-      }
-    });
   }
 
-  addComment(taskId: number) {
+  loadMyResignations(silent = false): void {
+    this.resignationService.getMyResignations()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (items) => this.myResignations = items || [],
+        error: () => {}
+      });
+  }
 
-    const message =
-
-      this.commentInputs[
-        taskId
-      ];
-
-    if(
-      !message
-      || message.trim() === ''
-    ) {
-
+  submitResignation(): void {
+    if (!this.resignationReason.trim()) {
+      this.toastService.warning('Required Field', 'Please state the primary reason for resignation.');
       return;
     }
 
-    const token =
-      localStorage
-        .getItem('token');
+    this.submittingResignation = true;
+    const payload = {
+      reason: this.resignationReason.trim(),
+      letter: this.resignationLetter.trim() || undefined,
+      proposedLastDay: this.proposedLastDay || undefined
+    };
 
-    this.http.post(
-
-      `https://flowsync-workspace-api-2.onrender.com/api/comments/${taskId}`,
-
-      {
-        message: message
-      },
-
-      {
-        headers: {
-          Authorization:
-            `Bearer ${token}`
+    this.resignationService.submitResignation(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.submittingResignation = false;
+          this.toastService.success('Resignation Submitted', 'Your resignation request has been sent to your Team Lead & Admin.');
+          this.resignationReason = '';
+          this.resignationLetter = '';
+          this.proposedLastDay = '';
+          this.loadMyResignations(true);
+        },
+        error: (err) => {
+          this.submittingResignation = false;
+          this.toastService.error('Submission Error', err?.error?.message || 'Failed to submit resignation request.');
         }
-      }
+      });
+  }
 
-    ).subscribe({
+  onChatInput(event: Event): void {
+    const input = (event.target as HTMLTextAreaElement).value;
+    const cursor = (event.target as HTMLTextAreaElement).selectionStart;
+    const textBeforeCursor = input.substring(0, cursor);
+    const lastAt = textBeforeCursor.lastIndexOf('@');
 
-      next: () => {
+    if (lastAt !== -1 && (lastAt === 0 || /\s/.test(textBeforeCursor[lastAt - 1]))) {
+      const q = textBeforeCursor.substring(lastAt + 1).toLowerCase();
+      this.filteredTagUsers = this.users.filter(u =>
+        u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
+      );
+      this.showTagSuggestions = this.filteredTagUsers.length > 0;
+    } else {
+      this.showTagSuggestions = false;
+    }
+  }
 
-        this.commentInputs[
-          taskId
-        ] = '';
+  selectTagUser(user: any): void {
+    const lastAt = this.newMessage.lastIndexOf('@');
+    if (lastAt !== -1) {
+      const prefix = this.newMessage.substring(0, lastAt);
+      this.newMessage = `${prefix}@${user.name} `;
+      this.taggedUser = user.name;
+    }
+    this.showTagSuggestions = false;
+  }
 
-        this.loadComments(
-          taskId
-        );
-      },
+  sendMessage(): void {
+    if (!this.newMessage.trim()) return;
 
-      error: (error) => {
+    const content = this.newMessage.trim();
+    const tagged = this.taggedUser || undefined;
+    this.newMessage = '';
+    this.taggedUser = '';
+    this.showTagSuggestions = false;
 
-        console.log(error);
+    if (this.activeChatChannel === 'DIRECT' && this.selectedDirectUser) {
+      this.discussionService.sendDirectMessage(this.selectedDirectUser.id, content)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => this.loadMessages(true),
+          error: () => this.toastService.error('Chat Error', 'Failed to send direct message.')
+        });
+    } else {
+      this.discussionService.sendMessage(content, tagged, 'TEAM')
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => this.loadMessages(true),
+          error: () => this.toastService.error('Chat Error', 'Failed to send message.')
+        });
+    }
+  }
 
-        alert(
-          'Failed To Add Comment'
-        );
-      }
+  changePassword(): void {
+    if (!this.currentPassword || !this.newPassword) {
+      this.toastService.warning('Password Update', 'Please fill in both current and new password.');
+      return;
+    }
+
+    this.authService.changePassword(this.currentPassword, this.newPassword)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (msg) => {
+          this.toastService.success('Password Changed', 'Your password has been updated successfully.');
+          this.currentPassword = '';
+          this.newPassword = '';
+        },
+        error: (err) => {
+          const msg = err?.error?.message || 'Password update failed.';
+          this.toastService.error('Error', msg);
+        }
+      });
+  }
+
+  get filteredTasks(): any[] {
+    return this.tasks.filter(task => {
+      const matchesSearch = task.title.toLowerCase().includes(this.searchText.toLowerCase());
+      const matchesFilter = this.selectedFilter === 'ALL' || task.status === this.selectedFilter;
+      return matchesSearch && matchesFilter;
     });
   }
 
-  // NOTIFICATIONS
-
-  loadNotifications() {
-
-    const token =
-      localStorage
-        .getItem('token');
-
-    this.http.get<any[]>(
-
-      'https://flowsync-workspace-api-2.onrender.com/api/notifications',
-
-      {
-        headers: {
-          Authorization:
-            `Bearer ${token}`
-        }
-      }
-
-    ).subscribe({
-
-      next: (response) => {
-
-        this.notifications =
-          response;
-
-        this.unreadCount =
-
-          response.filter(
-
-            notification =>
-              !notification.isRead
-
-          ).length;
-      },
-
-      error: (error) => {
-
-        console.log(error);
-      }
-    });
+  get paginatedTasks(): any[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    return this.filteredTasks.slice(start, start + this.itemsPerPage);
   }
 
-  // FILTERS
-
-  get filteredTasks() {
-
-    return this.tasks.filter(
-      task => {
-
-        const matchesSearch =
-
-          task.title
-
-            .toLowerCase()
-
-            .includes(
-
-              this.searchText
-                .toLowerCase()
-            );
-
-        const matchesFilter =
-
-          this.selectedFilter
-          === 'ALL'
-
-          ||
-
-          task.status
-          === this.selectedFilter;
-
-        return (
-          matchesSearch
-          &&
-          matchesFilter
-        );
-      }
-    );
+  toggleDarkMode(): void {
+    this.darkMode = !this.darkMode;
   }
 
-  // PAGINATION
-
-  get paginatedTasks() {
-
-    const start =
-
-      (
-        this.currentPage - 1
-      )
-
-      * this.itemsPerPage;
-
-    const end =
-
-      start
-      + this.itemsPerPage;
-
-    return this.filteredTasks
-      .slice(start, end);
+  logout(): void {
+    this.authState.logout();
   }
-
-  // UTILITIES
-
-  getStatusClass(
-    status: string
-  ) {
-
-    switch(status) {
-
-      case 'COMPLETED':
-        return 'bg-success';
-
-      case 'IN_PROGRESS':
-        return 'bg-primary';
-
-      case 'COMPLETION_REQUESTED':
-        return 'bg-warning text-dark';
-
-      case 'PENDING':
-        return 'bg-secondary';
-
-      default:
-        return 'bg-dark';
-    }
-  }
-
-  isOverdue(
-    dueDate: string
-  ): boolean {
-
-    const today =
-      new Date();
-
-    today.setHours(
-      0,0,0,0
-    );
-
-    const taskDate =
-      new Date(dueDate);
-
-    return taskDate < today;
-  }
-
-  toggleDarkMode() {
-
-    this.darkMode =
-      !this.darkMode;
-  }
-
-  clearForm() {
-
-    this.title = '';
-
-    this.description = '';
-
-    this.dueDate = '';
-
-    this.priority = 'HIGH';
-
-    this.status = 'PENDING';
-  }
-
-  logout() {
-
-    localStorage.clear();
-
-    this.router.navigate([
-      '/login'
-    ]);
-  }
-  changePassword() {
-
-  const token =
-    localStorage.getItem('token');
-
-  this.http.put(
-
-    `https://flowsync-workspace-api-2.onrender.com/api/users/change-password?currentPassword=${this.currentPassword}&newPassword=${this.newPassword}`,
-
-    {},
-
-    {
-      headers: {
-        Authorization:
-          `Bearer ${token}`
-      },
-
-      responseType: 'text'
-    }
-
-  ).subscribe({
-
-    next: (response) => {
-
-      alert(response);
-
-      this.currentPassword = '';
-
-      this.newPassword = '';
-    },
-
-    error: (error) => {
-
-      console.log(error);
-
-      alert(
-        'Password Update Failed'
-      );
-    }
-  });
-}
-loadMessages() {
-
-  const token =
-    localStorage.getItem('token');
-
-  this.http.get<any[]>(
-
-    'https://flowsync-workspace-api-2.onrender.com/api/discussions',
-
-    {
-      headers: {
-        Authorization:
-          `Bearer ${token}`
-      }
-    }
-
-  ).subscribe({
-
-    next: (response) => {
-
-      this.messages = response;
-    },
-
-    error: (error) => {
-
-      console.log(error);
-    }
-  });
-}
-sendMessage() {
-
-  if(!this.newMessage.trim()) {
-
-    return;
-  }
-
-  this.http.post(
-
-    'https://flowsync-workspace-api-2.onrender.com/api/discussions',
-
-    {
-
-      message: this.newMessage
-
-    },
-
-    this.getHeaders()
-
-  ).subscribe({
-
-    next: () => {
-
-      this.newMessage = '';
-
-      this.loadMessages();
-
-    },
-
-    error: (error) => {
-
-      console.log(error);
-
-      alert('Message Failed');
-
-    }
-
-  });
-
-}
-requestCompletion(taskId: number) {
-
-  const token =
-    localStorage.getItem('token');
-
-  this.http.put(
-
-    `https://flowsync-workspace-api-2.onrender.com/api/tasks/${taskId}/status?status=COMPLETION_REQUESTED`,
-
-    {},
-
-    {
-      headers: {
-        Authorization:
-          `Bearer ${token}`
-      }
-    }
-
-  ).subscribe({
-
-    next: () => {
-
-      alert(
-        'Approval Requested'
-      );
-
-      this.loadTasks();
-
-      this.loadNotifications();
-    },
-
-    error: (error) => {
-
-      console.log(error);
-
-      alert(
-        'Request Failed'
-      );
-    }
-  });
-}
-getHeaders() {
-
-  const token =
-    localStorage.getItem('token');
-
-  return {
-
-    headers: {
-
-      Authorization: `Bearer ${token}`
-    }
-  };
-}
 }

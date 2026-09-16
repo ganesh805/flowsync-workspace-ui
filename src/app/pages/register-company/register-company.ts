@@ -1,21 +1,22 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-register-company',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    RouterLink
   ],
   templateUrl: './register-company.html',
   styleUrl: './register-company.css'
 })
 export class RegisterCompany {
-
   companyName = '';
   companyCode = '';
   companyDomain = '';
@@ -25,15 +26,13 @@ export class RegisterCompany {
 
   loading = false;
 
-  private readonly API = 'https://flowsync-workspace-api-2.onrender.com/api/users';
-
   constructor(
-    private http: HttpClient,
+    private authService: AuthService,
+    private toastService: ToastService,
     private router: Router
   ) {}
 
   registerCompany() {
-
     if (
       !this.companyName.trim() ||
       !this.companyCode.trim() ||
@@ -42,56 +41,51 @@ export class RegisterCompany {
       !this.email.trim() ||
       !this.password.trim()
     ) {
-      alert('Please fill all fields');
+      this.toastService.warning('Required Fields', 'Please fill in all fields to create your company workspace.');
+      return;
+    }
+
+    const domain = this.companyDomain.trim().toLowerCase().replace(/^@/, '');
+    const adminEmail = this.email.trim().toLowerCase();
+
+    if (!adminEmail.endsWith('@' + domain)) {
+      this.toastService.warning(
+        'Email Domain Mismatch',
+        `Admin email must end with @${domain} (e.g., admin@${domain}).`
+      );
       return;
     }
 
     const body = {
       companyName: this.companyName.trim(),
       companyCode: this.companyCode.trim().toUpperCase(),
-      companyDomain: this.companyDomain.trim().toLowerCase(),
+      companyDomain: domain,
       adminName: this.adminName.trim(),
-      email: this.email.trim().toLowerCase(),
+      email: adminEmail,
       password: this.password
     };
 
-    console.log('Register Company Request');
-    console.log(body);
-
     this.loading = true;
 
-    this.http.post(
-      `${this.API}/register-company`,
-      body,
-      {
-        responseType: 'text'
-      }
-    ).subscribe({
-
+    this.authService.registerCompany(body).subscribe({
       next: (response) => {
-
-        console.log(response);
-
         this.loading = false;
-
-        alert('Company Registered Successfully');
-
+        this.toastService.success('Company Workspace Created', 'Your workspace and Admin account have been registered.');
         this.router.navigate(['/login']);
       },
-
       error: (error) => {
-
-        console.error('Registration Error:', error);
-
         this.loading = false;
-
-        alert(
-          error?.error?.error ||
-          error?.error ||
-          'Company Registration Failed'
-        );
+        console.error('Register Company Error:', error);
+        let msg = 'Company registration failed.';
+        if (typeof error?.error === 'string' && error.error.trim()) {
+          msg = error.error;
+        } else if (error?.error?.message) {
+          msg = error.error.message;
+        } else if (error?.message) {
+          msg = error.message;
+        }
+        this.toastService.error('Workspace Creation Failed', msg);
       }
-
     });
   }
 }
